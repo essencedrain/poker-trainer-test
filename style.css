@@ -51,8 +51,18 @@ h1 { margin: 0 0 1rem 0; font-size: 1.5rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* 컨트롤 및 버튼 */
-.controls { display: flex; gap: 10px; margin-bottom: 1rem; }
-.select-group { flex: 1; text-align: left; }
+/* 컨트롤 영역: 모바일에서는 세로로, PC에서는 가로로 */
+.controls {
+    display: flex;
+    flex-wrap: wrap; /* 줄바꿈 허용 */
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+.select-group {
+    flex: 1 1 30%; /* 너비를 3등분 (모바일엔 100%로 떨어질 수 있음) */
+    text-align: left;
+    min-width: 120px; /* 너무 좁아지지 않게 */
+}
 label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; }
 select {
     width: 100%; padding: 12px;
@@ -61,6 +71,12 @@ select {
     font-size: 1rem; outline: none;
 }
 
+/* 모바일 화면 대응 */
+@media (max-width: 400px) {
+    .select-group {
+        flex: 1 1 100%; /* 작은 화면에선 한 줄에 하나씩 */
+    }
+}
 .buttons { display: flex; gap: 10px; margin-bottom: 1.5rem; }
 button {
     flex: 1; padding: 14px;
@@ -96,5 +112,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 .answer-box h2 { margin: 0 0 5px 0; color: var(--text); }
 .answer-box p { margin: 0; color: var(--text-dim); font-size: 0.9rem; }
+
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
