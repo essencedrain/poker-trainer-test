@@ -4,19 +4,19 @@
     "position": "SB",
     "stack_depth": "10-20bb",
     "action_type": "OPEN_RAISING / LIMPING",
-    "source": "Raise Your Edge (RYE) - Image Grid"
+    "source": "Raise Your Edge (RYE)"
   },
   "strategy": {
     "Limp / Jam 12-20bb": [
       "AA", "KK", "QQ", "JJ",
-      "AKs", "AQs", "AJs", "ATs", "A9s", "A8s",
-      "KQs", "KJs",
-      "QJs"
+      "AKs", "AQs", "AJs", "ATs", "A9s", "A8s"
     ],
     "Jam < 15bb / Raise/Call 15bb+": [
-      "TT", "99", "88"
-      "AKo", "AQo", "AJo", "ATo", "A9o"
-      "KQo", "KJo"
+      "TT", "99",
+      "AKo", "AQo", "AJo", "ATo",
+      "KQo", "KJo",
+      "A9o",
+      "J8o"
     ],
     "Jam < 15bb / Limp Call 15-20bb Vs <3.5x": [
       "A7s", "A6s",
@@ -37,9 +37,13 @@
       "77", "66", "55", "44", "33", "22",
       "A5s", "A4s", "A3s", "A2s",
       "KTs", "K9s",
+      "J5s", "J4s", "J3s", "J2s",
+      "T5s",
+      "84s",
       "A8o", "A7o", "A6o", "A5o", "A4o", "A3o", "A2o"
     ],
     "Jam < 15bb / Limp Fold Vs <3.5x >15bb": [
+      "88",
       "Q4s", "Q3s", "Q2s",
       "J6s",
       "T6s",
@@ -49,17 +53,15 @@
       "63s",
       "53s",
       "43s",
-      "K8o", "Q8o", "J8o", "T8o",
+      "K8o", "Q8o", "T8o",
       "98o", "97o",
       "87o"
     ],
     "Jam < 12bb": [
       "K7o", "K6o", "K5o", "K4o", "K3o", "K2o",
-	  "J5s", "J4s", "J3s", "J2s",
       "Q7o",
       "J7o",
-      "T7o","T5s",
-	  "84s",
+      "T7o",
       "76o"
     ],
     "Limp / Fold 15-20bb": [
