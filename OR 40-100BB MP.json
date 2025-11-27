@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "file_name": "OR 40-100BB MP.json",
+    "position": "MP",
+    "stack_depth": "40-100bb",
+    "action_type": "Response vs 3Bet (Open Raise -> Action)",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "4B Value": [
+      "AA", "KK"
+    ],
+    "4B <50bb Value": [
+      "QQ",
+      "AKs"
+    ],
+    "4B <40bb": [
+      "JJ",
+      "AKo"
+    ],
+    "4B/Jam <30bb + Call 30bb+": [
+      "TT", "99",
+      "AQs",
+      "AQo"
+    ],
+    "4B Bluff": [
+      "A5s", "A4s", "A3s", "A2s"
+    ],
+    "Call 3B IP": [
+      "T9s"
+    ],
+    "CALL 3B 50bb+ IP (OOP Only Vs <3x Sizing)": [
+      "44", "33", "22",
+      "87s", "76s"
+    ],
+    "CALL 3B 40bb+ IP": [
+      "77", "66", "55",
+      "98s"
+    ],
+    "CALL 3B OOP + IP": [
+      "88",
+      "AJs", "ATs", "A9s",
+      "KQs", "KJs",
+      "QJs",
+      "JTs"
+    ],
+    "Fold Vs 3B": [
+      "A8s", "A7s", "A6s",
+      "KTs", "K9s",
+      "QTs", "Q9s",
+      "J9s",
+      "AJo", "ATo",
+      "KQo", "KJo"
+    ]
+  }
+}

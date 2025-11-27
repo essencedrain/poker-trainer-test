@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RYE 레인지 트레이너</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>♠️ RYE 레인지 트레이너 ♦️</h1>
+            <div id="loadingArea" class="loading-area">
+                <div class="spinner"></div>
+                <p id="statusMsg">서버에서 전략 파일을 불러오는 중...</p>
+            </div>
+        </header>
+
+        <hr class="divider">
+
+        <main id="appArea" class="hidden">
+            <div class="controls">
+                <div class="select-group">
+                    <label>스택 깊이</label>
+                    <select id="stackSelect">
+                        <option value="random">Random</option>
+                    </select>
+                </div>
+                <div class="select-group">
+                    <label>포지션</label>
+                    <select id="posSelect">
+                        <option value="random">Random</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button id="runBtn" class="btn-primary">실행</button>
+                <button id="randomBtn" class="btn-secondary">완전 랜덤</button>
+            </div>
+
+            <div class="quiz-area">
+                <div class="info-badges">
+                    <span id="displayStack" class="badge">Stack: --</span>
+                    <span id="displayPos" class="badge">Pos: --</span>
+                </div>
+                
+                <div class="hand-card">
+                    <span id="handText">?</span>
+                </div>
+            </div>
+
+            <div class="answer-area">
+                <button id="showAnswerBtn" class="btn-answer" disabled>정답 보기</button>
+                
+                <div id="answerBox" class="answer-box hidden">
+                    <h2 id="strategyName">전략명</h2>
+                    <p id="actionType">액션 타입</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

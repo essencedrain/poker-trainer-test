@@ -1,0 +1,65 @@
+{
+  "meta": {
+    "file_name": "OR 40-100BB BU.json",
+    "position": "BTN",
+    "stack_depth": "40-100bb",
+    "action_type": "Response vs 3Bet (Open Raise -> Action)",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "4B Value": [
+      "AA", "KK"
+    ],
+    "4B <50bb Value": [
+      "QQ", "JJ",
+      "AKs",
+      "AKo"
+    ],
+    "4B <40bb Value": [
+      "TT"
+    ],
+    "4B/Jam <40bb + Call 40bb+": [
+      "99", "88", "77", "66", "55", "44", "33", "22",
+      "AQs",
+      "AQo"
+    ],
+    "4B Bluff < 50bb": [
+      "A9o",
+      "QJo"
+    ],
+    "4B Bluff IP": [
+      "K7s", "K6s"
+    ],
+    "Call Vs 3B": [
+      "AJs", "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+      "KQs", "KJs", "KTs", "K9s", "K8s",
+      "QJs", "QTs", "Q9s", "Q8s",
+      "JTs", "J9s", "J8s",
+      "T9s", "T8s",
+      "98s", "97s",
+      "87s", "86s",
+      "76s", "75s",
+      "65s", "64s",
+      "54s",
+      "AJo", "ATo",
+      "KQo", "KJo"
+    ],
+    "Fold Vs 3B": [
+      "K5s", "K4s", "K3s", "K2s",
+      "Q7s", "Q6s", "Q5s", "Q4s", "Q3s", "Q2s",
+      "J7s", "J6s", "J5s", "J4s", "J3s", "J2s",
+      "T7s", "T6s", "T5s", "T4s",
+      "96s", "95s", "94s",
+      "85s", "84s",
+      "74s", "73s",
+      "63s",
+      "53s",
+      "43s",
+      "A8o", "A7o", "A6o", "A5o", "A4o", "A3o", "A2o",
+      "KTo", "K9o", "K8o",
+      "QTo", "Q9o",
+      "JTo", "J9o",
+      "T9o"
+    ]
+  }
+}

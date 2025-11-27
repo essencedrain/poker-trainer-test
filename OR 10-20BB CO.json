@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "file_name": "OR 10-20BB CO.json",
+    "position": "CO",
+    "stack_depth": "10-20bb",
+    "action_type": "OPEN_RAISING",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "Openraise": [
+      "AA", "KK", "QQ", "JJ", "TT"
+    ],
+    "Openraise / Jam <12bb": [
+	  "99", "88",
+      "AKs", "AQs", "AJs", "ATs"
+    ],
+    "Openjam <15bb": [	  
+      "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+      "KQs", "KJs", "KTs", "K9s",
+      "QJs", "QTs",
+      "AKo", "AQo", "AJo", "ATo",
+      "KQo", "KJo"
+    ],
+    "Openjam <12bb": [	  
+      "K8s", "K7s", "K6s", "K5s",
+      "Q9s", "Q8s",
+      "JTs", "J9s", "J8s",
+      "T9s", "T8s",
+      "98s", "97s",
+      "87s",
+      "76s",
+      "QJo",
+      "KTo", "QTo", "JTo",
+      "A9o", "A8o", "A7o", "A6o"
+    ],
+    "Openjam <12bb / Fold 12bb+": [
+      "T7s",
+      "86s",
+      "75s",
+      "65s", "64s",
+      "54s",
+      "A5o", "A4o", "A3o", "A2o"
+    ],
+    "Openjam <20bb": [
+      "77", "66", "55", "44", "33", "22"
+    ]
+  }
+}

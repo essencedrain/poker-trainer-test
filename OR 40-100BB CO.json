@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "file_name": "OR 40-100BB CO.json",
+    "position": "CO",
+    "stack_depth": "40-100bb",
+    "action_type": "Response vs 3Bet (Open Raise -> Action)",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "4B Value": [
+      "AA", "KK"
+    ],
+    "4B <50bb Value": [
+      "QQ", "JJ",
+      "AKs",
+      "AKo"
+    ],
+    "4B <40bb Value": [
+      "TT"
+    ],
+    "4B/Jam <40bb + Call 40bb+": [
+      "99", "88", "77",
+      "AQs",
+      "AQo"
+    ],
+    "4B Bluff <50bb": [
+      "K8s", "K7s"
+    ],
+    "4B Bluff OOP <50bb / Call 3B IP": [
+      "A7s", "A6s",
+      "ATo"
+    ],
+    "4B Bluff Vs BTN / Call Vs 3B IP": [
+      "A5s", "A4s", "A3s", "A2s"
+    ],
+    "Call Vs 3B IP": [
+      "86s"
+    ],
+    "CALL 3B 50bb+ IP & 60bb+ OOP": [
+      "33", "22"
+    ],
+    "CALL 3B 40bb+ IP & CALL 3b 50bb+ OOP": [
+      "66", "55", "44"
+    ],
+    "CALL 3B OOP + IP": [
+      "AJs", "ATs", "A9s", "A8s",
+      "KQs", "KJs", "KTs", "K9s",
+      "QJs", "QTs", "Q9s",
+      "JTs", "J9s",
+      "T9s", "T8s",
+      "98s", "97s",
+      "87s",
+      "76s",
+      "65s",
+      "AJo",
+      "KQo"
+    ],
+    "Fold Vs 3B": [
+      "K6s", "K5s",
+      "Q8s", "Q7s",
+      "J8s", "J7s",
+      "T7s",
+      "75s",
+      "54s",
+      "A9o", "A8o", "A5o", "A4o", "A3o", "A2o",
+      "KJo", "KTo",
+      "QJo", "QTo",
+      "JTo"
+    ]
+  }
+}

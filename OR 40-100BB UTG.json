@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "file_name": "OR 40-100BB UTG.json",
+    "position": "UTG",
+    "stack_depth": "40-100bb",
+    "action_type": "Response vs 3Bet (Open Raise -> Action)",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "4B Value": [
+      "AA", "KK"
+    ],
+    "4B <40bb Value": [
+      "QQ", "JJ",
+      "AKs",
+      "AKo"
+    ],
+    "4B/Jam <30bb + Call 30bb+": [
+      "TT", "99",
+      "AQs",
+      "AQo"
+    ],
+    "CALL 3BET IP + OOP": [
+      "AJs", "ATs",
+      "KQs", "KJs"
+    ],
+    "Call 3bet 40bb+ IP": [
+      "88", "77",
+      "QJs", "JTs"
+    ],
+    "CALL 3B 50bb+ IP": [
+      "T9s"
+    ],
+    "4B Bluff": [
+      "A5s", "A4s", "A3s"
+    ],
+    "Fold Vs 3B": [
+      "AJo",
+      "A9s", "KTs",
+      "QTs",
+      "98s",
+      "A2s"
+    ]
+  }
+}

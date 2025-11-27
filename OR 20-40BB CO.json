@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "file_name": "OR 20-40BB CO.json",
+    "position": "CO",
+    "stack_depth": "20-40bb",
+    "action_type": "Response vs 3Bet (Open Raise -> Action)",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "Call 3B": [
+      "ATs", "A9s", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+      "KQs", "KJs", "KTs",
+      "QJs", "QTs",
+      "JTs",
+      "T9s",
+      "KQo", "AJo"
+    ],
+    "Fold Vs 3B": [
+      "K9s", "K8s", "K7s", "K6s",
+      "Q9s", "Q8s",
+      "J9s", "J8s",
+      "T8s",
+      "98s", "97s",
+      "87s",
+      "76s",
+      "65s",
+      "ATo", "A9o", "A8o", "A5o", "A4o", "A3o", "A2o",
+      "KJo", "KTo",
+      "QJo", "QTo",
+	  "JTo"
+    ],
+    "4B Jam": [
+      "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+      "AKs", "AQs", "AJs",
+      "AKo", "AQo"
+    ]
+  }
+}

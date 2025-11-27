@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "file_name": "OR 10-20BB HJ.json",
+    "position": "HJ",
+    "stack_depth": "10-20bb",
+    "action_type": "OPEN_RAISING",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "Openraise": [
+      "AA", "KK", "QQ", "JJ", "TT", "99",
+      "AKs", "AQs", "AJs",
+      "K8s",
+      "T8s",
+      "87s",
+      "76s",
+      "KTo"
+    ],
+    "Jam <15bb": [
+      "88", "77", "66", "55",
+      "ATs", "A9s",
+      "KQs", "KJs",
+      "AKo", "AQo", "AJo", "ATo",
+      "KQo"
+    ],
+    "Jam <12bb": [
+      "44", "33", "22",
+      "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+      "KTs", "K9s",
+      "QJs", "QTs", "Q9s",
+      "JTs", "J9s",
+      "T9s",
+      "98s",
+      "KJo", "QJo",
+      "A9o"
+    ]
+  }
+}

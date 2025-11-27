@@ -1,0 +1,46 @@
+{
+  "meta": {
+    "file_name": "OR 10-20BB BTN.json",
+    "position": "BTN",
+    "stack_depth": "10-20bb",
+    "action_type": "OPEN_RAISING",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "Raise": [
+      "AA", "KK", "QQ", "JJ", "TT",
+      "AKs"
+    ],
+    "Openjam < 20bb": [
+      "55", "44", "33", "22"
+    ],
+    "Raise / Jam < 12bb": [
+      "99", "88",
+      "AQs", "AJs", "ATs", "A9s", "A8s",
+      "KQs", "KJs",
+      "K4s", "K3s", "K2s",
+      "Q7s", "Q6s", "Q5s",
+      "J7s",
+      "96s",
+      "AKo", "AQo", "AJo", "ATo",
+      "K9o",
+      "Q9o",
+      "J9o",
+      "T9o"
+    ],
+    "Openjam <15bb": [
+      "77", "66",
+      "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+      "KTs", "K9s", "K8s", "K7s", "K6s", "K5s",
+      "QJs", "QTs", "Q9s", "Q8s",
+      "JTs", "J9s", "J8s",
+      "T9s", "T8s", "T7s",
+      "98s", "97s",
+      "87s", "86s",
+      "76s", "75s",
+      "65s", "64s",
+      "54s",
+      "A9o", "A8o", "A7o", "A6o", "A5o", "A4o", "A3o", "A2o"
+    ]
+  }
+}

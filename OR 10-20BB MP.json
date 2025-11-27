@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "file_name": "OR 10-20BB MP.json",
+    "position": "MP",
+    "stack_depth": "10-20bb",
+    "action_type": "OPEN_RAISING",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "Openraise": [
+      "AA", "KK", "QQ", "JJ",
+      "AKs",
+      "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+      "K9s",
+      "Q9s",
+      "J9s",
+      "98s"
+    ],
+    "Jam <15bb": [
+      "TT", "99", "88", "77",
+      "KQs", "KJs",
+      "AKo", "AQo", "AJo"
+    ],
+    "Jam <12bb": [
+      "66", "55",
+      "AQs", "AJs", "ATs", "A9s",
+      "KTs",
+      "QJs", "QTs",
+      "JTs",
+      "T9s",
+      "ATo",
+      "KQo", "KJo"
+    ]
+  }
+}

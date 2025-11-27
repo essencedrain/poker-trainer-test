@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "file_name": "OR 40-100BB HJ.json",
+    "position": "HJ",
+    "stack_depth": "40-100bb",
+    "action_type": "Response vs 3Bet (Open Raise -> Action)",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "4B Value": [
+      "AA", "KK"
+    ],
+    "4B <50bb Value": [
+      "QQ",
+      "AKs",
+      "AKo"
+    ],
+    "4B <40bb Value": [
+      "JJ"
+    ],
+    "4B/Jam <30bb + Call 30bb+": [
+      "TT", "99", "88", "77"
+    ],
+    "4B Bluff": [
+      "A8s", "A5s", "A4s", "A3s", "A2s"
+    ],
+    "Call Vs 3B IP": [
+      "AJo",
+      "KQo", "98s"
+    ],
+    "CALL VS 3B OOP & IP": [
+      "AJs", "ATs", "A9s",
+      "KQs", "KJs", "KTs",
+      "QJs", "QTs",
+      "JTs",
+      "T9s"
+    ],
+    "CALL 3B 50bb+ IP & 60bb+ OOP": [
+      "55", "44", "33", "22"
+    ],
+    "CALL 3B 40bb+ IP & 50bb+ OOP": [
+      "66",
+      "AQs",
+      "87s",
+      "76s",
+      "AQo"
+    ],
+    "Fold Vs 3B": [
+      "A7s", "A6s",
+      "K9s", "K8s",
+      "Q9s", "Q8s",
+      "J9s", "J8s",
+      "T8s",
+      "97s",
+      "65s",
+      "54s",
+      "ATo", "A9o",
+      "KJo", "KTo",
+      "QJo", "QTo",
+      "JTo"
+    ]
+  }
+}

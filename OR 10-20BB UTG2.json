@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "file_name": "OR 10-20BB UTG2.json",
+    "position": "UTG2",
+    "stack_depth": "10-20bb",
+    "action_type": "OPEN_RAISING",
+    "source": "Raise Your Edge (RYE) - Image Grid"
+  },
+  "strategy": {
+    "Openraise": [
+      "AA", "KK", "QQ",
+      "AKs", "AQs", "A8s", "A7s", "A6s", "A5s", "A4s", "A3s", "A2s",
+      "T9s",
+      "ATo"
+    ],
+    "Jam <15bb": [
+      "TT", "99", "88",
+      "KQs",
+      "AKo", "AQo", "AJo"
+    ],
+    "Jam <12bb": [
+      "JJ", "77",
+      "AJs", "ATs", "A9s",
+      "KJs", "KTs",
+      "QJs", "QTs",
+      "JTs",
+      "KQo"
+    ]
+  }
+}
