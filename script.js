@@ -12,37 +12,65 @@ const jsonFiles = [
 
 let strategies = {}; 
 let currentQuiz = null;
-let selectedHandValue = 'random'; // 현재 선택된 핸드 ('random' 또는 'AA' 등)
+let selectedHandValue = 'random'; 
 
-// DOM 요소
-const statusMsg = document.getElementById('statusMsg');
-const loadingArea = document.getElementById('loadingArea');
-const appArea = document.getElementById('appArea');
-const stackSelect = document.getElementById('stackSelect');
-const posSelect = document.getElementById('posSelect');
-const runBtn = document.getElementById('runBtn');
-const resetBtn = document.getElementById('resetBtn'); // 초기화 버튼
-const showAnswerBtn = document.getElementById('showAnswerBtn');
-const answerBox = document.getElementById('answerBox');
-const displayStack = document.getElementById('displayStack');
-const displayPos = document.getElementById('displayPos');
-const handText = document.getElementById('handText');
-const strategyName = document.getElementById('strategyName');
+// DOM 요소 참조 (로드 후 할당)
+let statusMsg, loadingArea, appArea, stackSelect, posSelect;
+let runBtn, resetBtn, showAnswerBtn, answerBox;
+let displayStack, displayPos, handText, strategyName;
+let handSelectBtn, handModal, closeModalBtn, handGrid, selectRandomHandBtn;
 
-// 모달 관련 DOM
-const handSelectBtn = document.getElementById('handSelectBtn');
-const handModal = document.getElementById('handModal');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const handGrid = document.getElementById('handGrid');
-const selectRandomHandBtn = document.getElementById('selectRandomHandBtn');
-
-// 169 핸드 생성 및 그리드 그리기
+// 169 핸드 목록
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const allHands = [];
 
-// 그리드 생성 함수
+// 초기화: DOMContentLoaded
+window.addEventListener('DOMContentLoaded', async () => {
+    // DOM 요소 바인딩
+    statusMsg = document.getElementById('statusMsg');
+    loadingArea = document.getElementById('loadingArea');
+    appArea = document.getElementById('appArea');
+    stackSelect = document.getElementById('stackSelect');
+    posSelect = document.getElementById('posSelect');
+    runBtn = document.getElementById('runBtn');
+    resetBtn = document.getElementById('resetBtn');
+    showAnswerBtn = document.getElementById('showAnswerBtn');
+    answerBox = document.getElementById('answerBox');
+    displayStack = document.getElementById('displayStack');
+    displayPos = document.getElementById('displayPos');
+    handText = document.getElementById('handText');
+    strategyName = document.getElementById('strategyName');
+    
+    handSelectBtn = document.getElementById('handSelectBtn');
+    handModal = document.getElementById('handModal');
+    closeModalBtn = document.getElementById('closeModalBtn');
+    handGrid = document.getElementById('handGrid');
+    selectRandomHandBtn = document.getElementById('selectRandomHandBtn');
+
+    // 이벤트 리스너 연결
+    if(runBtn) runBtn.addEventListener('click', generateQuiz);
+    if(resetBtn) resetBtn.addEventListener('click', resetAll);
+    if(showAnswerBtn) showAnswerBtn.addEventListener('click', showAnswer);
+    
+    if(handSelectBtn) handSelectBtn.addEventListener('click', openModal);
+    if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if(selectRandomHandBtn) selectRandomHandBtn.addEventListener('click', selectRandomHandOption);
+    
+    window.addEventListener('click', (e) => {
+        if (e.target === handModal) closeModal();
+    });
+
+    // 핸드 그리드 생성
+    createHandGrid();
+
+    // 데이터 로드 시작
+    loadData();
+});
+
 function createHandGrid() {
+    if (!handGrid) return;
     handGrid.innerHTML = '';
+    
     for (let i = 0; i < ranks.length; i++) {
         for (let j = 0; j < ranks.length; j++) {
             let hand = '';
@@ -51,15 +79,15 @@ function createHandGrid() {
             if (i === j) {
                 hand = ranks[i] + ranks[j];
                 type = 'cell-pair';
-                allHands.push(hand);
+                if(allHands.length < 169) allHands.push(hand);
             } else if (i < j) {
                 hand = ranks[i] + ranks[j] + 's';
                 type = 'cell-suited';
-                allHands.push(hand);
+                if(allHands.length < 169) allHands.push(hand);
             } else {
                 hand = ranks[j] + ranks[i] + 'o';
                 type = 'cell-offsuit';
-                allHands.push(hand);
+                if(allHands.length < 169) allHands.push(hand);
             }
 
             const cell = document.createElement('div');
@@ -71,10 +99,7 @@ function createHandGrid() {
     }
 }
 
-// 초기화: 페이지 로드
-window.addEventListener('DOMContentLoaded', async () => {
-    createHandGrid(); // 그리드 생성
-
+async function loadData() {
     try {
         const fetchPromises = jsonFiles.map(filename => 
             fetch(filename)
@@ -91,6 +116,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         const results = await Promise.all(fetchPromises);
         
+        let loadedCount = 0;
         results.forEach(data => {
             if (!data || !data.meta) return;
             const stack = data.meta.stack_depth;
@@ -98,21 +124,30 @@ window.addEventListener('DOMContentLoaded', async () => {
             
             if (!strategies[stack]) strategies[stack] = { positions: {} };
             strategies[stack].positions[pos] = data.strategy;
+            loadedCount++;
         });
 
-        loadingArea.style.display = 'none';
-        appArea.classList.remove('hidden');
-        initApp();
+        if (loadedCount > 0) {
+            if(loadingArea) loadingArea.style.display = 'none';
+            if(appArea) appArea.classList.remove('hidden');
+            initApp();
+            console.log(`✅ 총 ${loadedCount}개의 파일 로드 완료`);
+        } else {
+            if(statusMsg) {
+                statusMsg.textContent = "데이터 로드 실패. 콘솔 확인.";
+                statusMsg.style.color = "#f44336";
+            }
+        }
 
     } catch (error) {
-        console.error(error);
-        statusMsg.textContent = "데이터 로드 실패";
-        statusMsg.style.color = "#f44336";
+        console.error("치명적 오류:", error);
     }
-});
+}
 
 function initApp() {
+    if (!stackSelect) return;
     stackSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
+    
     const stacks = Object.keys(strategies).sort(); 
     stacks.forEach(stack => {
         const option = document.createElement('option');
@@ -126,6 +161,7 @@ function initApp() {
 }
 
 function updatePosSelect() {
+    if (!posSelect) return;
     const selectedStack = stackSelect.value;
     posSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
 
@@ -149,127 +185,41 @@ function getRandomItem(arr) {
 }
 
 // --- 핸드 선택 로직 ---
-function openModal() { handModal.classList.remove('hidden'); }
-function closeModal() { handModal.classList.add('hidden'); }
+function openModal() { if(handModal) handModal.classList.remove('hidden'); }
+function closeModal() { if(handModal) handModal.classList.add('hidden'); }
 
 function selectHand(hand) {
     selectedHandValue = hand;
-    handSelectBtn.textContent = hand;
+    if(handSelectBtn) handSelectBtn.textContent = hand;
     closeModal();
 }
 
 function selectRandomHandOption() {
     selectedHandValue = 'random';
-    handSelectBtn.textContent = 'Random (랜덤)';
+    if(handSelectBtn) handSelectBtn.textContent = 'Random (랜덤)';
     closeModal();
 }
 
 // --- 초기화 로직 ---
 function resetAll() {
-    stackSelect.value = 'random';
-    updatePosSelect(); // 포지션도 random으로 리셋됨
+    if(stackSelect) stackSelect.value = 'random';
+    updatePosSelect(); 
     selectRandomHandOption();
     
-    // UI 초기화
-    answerBox.classList.add('hidden');
-    showAnswerBtn.disabled = true;
-    showAnswerBtn.textContent = "정답 보기";
-    showAnswerBtn.style.backgroundColor = "var(--accent)";
-    handText.textContent = "?";
-    handText.style.color = "var(--text)";
-    displayStack.textContent = "Stack: --";
-    displayPos.textContent = "Pos: --";
+    if(answerBox) answerBox.classList.add('hidden');
+    if(showAnswerBtn) {
+        showAnswerBtn.disabled = true;
+        showAnswerBtn.textContent = "정답 보기";
+        showAnswerBtn.style.backgroundColor = "var(--accent)";
+    }
+    if(handText) {
+        handText.textContent = "?";
+        handText.style.color = "var(--text)";
+    }
+    if(displayStack) displayStack.textContent = "Stack: --";
+    if(displayPos) displayPos.textContent = "Pos: --";
+    
+    currentQuiz = null;
 }
 
 // --- 퀴즈 생성 ---
-function generateQuiz() {
-    if (!strategies) return;
-
-    // 1. 스택
-    let stack = stackSelect.value;
-    if (stack === 'random') {
-        const stacks = Object.keys(strategies);
-        stack = getRandomItem(stacks);
-    }
-
-    // 2. 포지션
-    let pos = posSelect.value;
-    if (pos === 'random') {
-        const validPositions = Object.keys(strategies[stack].positions);
-        pos = getRandomItem(validPositions);
-    }
-
-    // 3. 핸드 (선택값 or 랜덤)
-    let hand = selectedHandValue;
-    if (hand === 'random') {
-        hand = getRandomItem(allHands);
-    }
-
-    currentQuiz = { stack, pos, hand };
-
-    // UI 업데이트
-    displayStack.textContent = stack;
-    displayPos.textContent = pos;
-    handText.textContent = hand;
-    
-    if (hand.includes('s')) handText.style.color = '#1e88e5'; 
-    else if (hand.includes('o')) handText.style.color = '#757575'; 
-    else handText.style.color = '#e53935'; 
-
-    answerBox.classList.add('hidden');
-    showAnswerBtn.disabled = false;
-    showAnswerBtn.textContent = "정답 보기";
-    showAnswerBtn.style.backgroundColor = "var(--accent)";
-}
-
-function showAnswer() {
-    if (!currentQuiz) return;
-    const { stack, pos, hand } = currentQuiz;
-    const posData = strategies[stack]?.positions[pos];
-
-    let resultStrategy = "FOLD (Not in range)";
-    let resultColor = "#888"; 
-
-    if (posData) {
-        for (const [stratName, handList] of Object.entries(posData)) {
-            if (handList.includes(hand)) {
-                resultStrategy = stratName;
-                const lower = stratName.toLowerCase();
-                if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) {
-                    resultColor = '#e53935'; 
-                } else if (lower.includes('call')) {
-                    resultColor = '#fdd835'; 
-                } else if (lower.includes('fold')) {
-                    resultColor = '#1e88e5'; 
-                } else {
-                    resultColor = '#4caf50'; 
-                }
-                break;
-            }
-        }
-    }
-
-    strategyName.textContent = resultStrategy;
-    strategyName.style.color = resultColor;
-
-    answerBox.classList.remove('hidden');
-    showAnswerBtn.disabled = true;
-    showAnswerBtn.textContent = "확인 완료";
-    showAnswerBtn.style.backgroundColor = "#444";
-}
-
-// 이벤트 리스너
-runBtn.addEventListener('click', generateQuiz);
-resetBtn.addEventListener('click', resetAll);
-showAnswerBtn.addEventListener('click', showAnswer);
-
-// 모달 관련 이벤트
-handSelectBtn.addEventListener('click', openModal);
-closeModalBtn.addEventListener('click', closeModal);
-selectRandomHandOptionBtn = document.getElementById('selectRandomHandBtn');
-selectRandomHandOptionBtn.addEventListener('click', selectRandomHandOption);
-
-// 모달 바깥 클릭 시 닫기
-window.addEventListener('click', (e) => {
-    if (e.target === handModal) closeModal();
-});
