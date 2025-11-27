@@ -152,7 +152,7 @@ async function loadData() {
 
 function initApp() {
     if (!stackSelect) return;
-    stackSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
+    stackSelect.innerHTML = '<option value="random">Random</option>';
     
     const stacks = Object.keys(strategies).sort(); 
     stacks.forEach(stack => {
@@ -169,7 +169,7 @@ function initApp() {
 function updatePosSelect() {
     if (!posSelect) return;
     const selectedStack = stackSelect.value;
-    posSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
+    posSelect.innerHTML = '<option value="random">Random</option>';
 
     if (selectedStack !== 'random' && strategies[selectedStack]) {
         const order = ["UTG", "UTG1", "UTG2", "MP", "HJ", "CO", "BTN", "BU", "SB", "BB"];
@@ -202,7 +202,7 @@ function selectHand(hand) {
 
 function selectRandomHandOption() {
     selectedHandValue = 'random';
-    if(handSelectBtn) handSelectBtn.textContent = 'Random (랜덤)';
+    if(handSelectBtn) handSelectBtn.textContent = 'Random';
     closeModal();
 }
 
@@ -307,3 +307,4 @@ function showAnswer() {
         showAnswerBtn.style.backgroundColor = "#444";
     }
 }
+
