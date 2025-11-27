@@ -16,7 +16,7 @@ let selectedHandValue = 'random';
 
 // 169 핸드 목록 생성 및 그리드 정의
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-const allHands = [];
+const allHands = []; // 이 배열은 createHandGrid에서 한 번만 채워집니다.
 
 // DOM 요소 참조 (DOMContentLoaded 안에서 바인딩됨)
 let stackSelect, posSelect, runBtn, resetBtn, showAnswerBtn, handSelectBtn;
@@ -27,10 +27,8 @@ let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
 // --- 핸드 그리드 생성 함수 ---
 function createHandGrid() {
     if (!handGrid) return;
-    handGrid.innerHTML = '';
-    
-    // allHands 배열 초기화 및 채우기
-    // (createHandGrid 함수가 DOMContentLoaded보다 먼저 실행될 수도 있기에 allHands 배열을 여기서 채움)
+
+    // allHands 배열이 비어있다면 채움 (초기 로드 시 한 번만 실행)
     if (allHands.length === 0) {
         for (let i = 0; i < ranks.length; i++) {
             for (let j = 0; j < ranks.length; j++) {
@@ -43,6 +41,8 @@ function createHandGrid() {
         }
     }
 
+    handGrid.innerHTML = ''; // 그리드 초기화
+    
     let handIndex = 0;
     for (let i = 0; i < ranks.length; i++) {
         for (let j = 0; j < ranks.length; j++) {
@@ -65,7 +65,7 @@ function createHandGrid() {
 
 // --- 페이지 로드 및 데이터 로직 ---
 window.addEventListener('DOMContentLoaded', async () => {
-    // 1. DOM 요소 바인딩
+    // 1. DOM 요소 바인딩 (이곳에서 모든 요소를 안전하게 찾음)
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
     runBtn = document.getElementById('runBtn');
@@ -75,8 +75,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     handText = document.getElementById('handText');
     displayStack = document.getElementById('displayStack');
     displayPos = document.getElementById('displayPos');
-    
-    // 모달 요소 바인딩
     handSelectBtn = document.getElementById('handSelectBtn');
     handModal = document.getElementById('handModal');
     closeModalBtn = document.getElementById('closeModalBtn');
@@ -97,7 +95,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (e.target === handModal) closeModal();
     });
 
-    // 3. 핸드 그리드 생성
+    // 3. 핸드 그리드 생성 (DOM 요소 바인딩 후 실행)
     createHandGrid(); 
     
     // 4. 데이터 로드 시작
