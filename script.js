@@ -66,23 +66,24 @@ for (let i = 0; i < ranks.length; i++) {
     }
 }
 
-// 초기화: 페이지 로드 시 모든 JSON fetch
+// 초기화: 페이지 로드 시 모든 JSON fetch 및 오류 진단
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const fetchPromises = jsonFiles.map(filename => 
             fetch(filename)
                 .then(res => {
                     if (!res.ok) throw new Error(`HTTP 에러: ${res.status}`);
-                    return res.text(); // 일단 텍스트로 받음
+                    return res.text(); // 1. 일단 텍스트로 받습니다.
                 })
                 .then(text => {
                     try {
-                        return JSON.parse(text); // 여기서 파싱 시도
+                        return JSON.parse(text); // 2. 여기서 JSON으로 변환 시도
                     } catch (err) {
-                        // ★ 여기가 핵심: 어떤 파일이 깨졌는지 알려줌
-                        console.error(`❌ JSON 문법 오류 발생 파일: ${filename}`);
-                        console.error(`내용 확인: ${err.message}`);
-                        return null; // 오류 난 파일은 무시하고 진행
+                        // ★ 여기서 오류 난 파일명을 알려줍니다!
+                        console.error(`🚨 문법 오류 발견! 파일명: ${filename}`);
+                        console.error(`❌ 오류 내용: ${err.message}`);
+                        console.warn(`힌트: 해당 파일의 ${err.message.match(/line \d+/)} 근처에 콤마(,)가 빠졌는지 확인해보세요.`);
+                        return null; // 오류 난 파일은 건너뜀
                     }
                 })
                 .catch(err => {
@@ -93,10 +94,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         const results = await Promise.all(fetchPromises);
         
-        // 유효한 데이터만 필터링해서 병합
+        // 데이터 병합 로직 (유효한 데이터만)
         let loadedCount = 0;
         results.forEach(data => {
-            if (!data || !data.meta) return; // 데이터가 없으면 패스
+            if (!data || !data.meta) return;
 
             const stack = data.meta.stack_depth;
             const pos = data.meta.position;
@@ -112,14 +113,14 @@ window.addEventListener('DOMContentLoaded', async () => {
             loadedCount++;
         });
 
-        // 결과 표시
+        // 로딩 완료 처리
         if (loadedCount > 0) {
             loadingArea.style.display = 'none';
             appArea.classList.remove('hidden');
             initApp();
             console.log(`✅ 총 ${loadedCount}개의 파일이 정상적으로 로드되었습니다.`);
         } else {
-            statusMsg.textContent = "모든 JSON 파일에 오류가 있습니다. 콘솔(F12)을 확인하세요.";
+            statusMsg.textContent = "JSON 파일 오류입니다. F12 콘솔을 확인하세요.";
             statusMsg.style.color = "#f44336";
         }
 
