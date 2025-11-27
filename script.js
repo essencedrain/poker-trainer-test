@@ -14,91 +14,67 @@ let strategies = {};
 let currentQuiz = null;
 let selectedHandValue = 'random'; 
 
-// DOM 요소 참조 (로드 후 할당)
-let statusMsg, loadingArea, appArea, stackSelect, posSelect;
-let runBtn, resetBtn, showAnswerBtn, answerBox;
-let displayStack, displayPos, handText, strategyName;
-let handSelectBtn, handModal, closeModalBtn, handGrid, selectRandomHandBtn;
+// DOM Element references (defined globally but reassigned in DOMContentLoaded)
+let stackSelect, posSelect, runBtn, resetBtn, showAnswerBtn, handSelectBtn;
+let handModal, closeModalBtn, handGrid, selectRandomHandBtn;
+let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
 
-// 169 핸드 목록
+// 169 핸드 목록 생성
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const allHands = [];
+for (let i = 0; i < ranks.length; i++) {
+    for (let j = 0; j < ranks.length; j++) {
+        let hand = '';
+        if (i === j) hand = ranks[i] + ranks[j];
+        else if (i < j) hand = ranks[i] + ranks[j] + 's';
+        else hand = ranks[j] + ranks[i] + 'o';
+        
+        // Ensure allHands is only populated once during the first run of the loop (inside createHandGrid)
+        if (allHands.length < 169) allHands.push(hand); 
+    }
+}
 
-// 초기화: DOMContentLoaded
+// 초기화: 페이지 로드 시 모든 JSON fetch 및 오류 진단
 window.addEventListener('DOMContentLoaded', async () => {
-    // DOM 요소 바인딩
-    statusMsg = document.getElementById('statusMsg');
-    loadingArea = document.getElementById('loadingArea');
-    appArea = document.getElementById('appArea');
+    // === 1. DOM 요소 바인딩 (안전하게 DOMContentLoaded 안에서 실행) ===
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
     runBtn = document.getElementById('runBtn');
     resetBtn = document.getElementById('resetBtn');
     showAnswerBtn = document.getElementById('showAnswerBtn');
+    
+    // UI Elements
+    loadingArea = document.getElementById('loadingArea');
     answerBox = document.getElementById('answerBox');
     displayStack = document.getElementById('displayStack');
     displayPos = document.getElementById('displayPos');
     handText = document.getElementById('handText');
     strategyName = document.getElementById('strategyName');
     
+    // Modal Elements
     handSelectBtn = document.getElementById('handSelectBtn');
     handModal = document.getElementById('handModal');
     closeModalBtn = document.getElementById('closeModalBtn');
     handGrid = document.getElementById('handGrid');
     selectRandomHandBtn = document.getElementById('selectRandomHandBtn');
 
-    // 이벤트 리스너 연결
+    // === 2. 이벤트 리스너 연결 ===
     if(runBtn) runBtn.addEventListener('click', generateQuiz);
     if(resetBtn) resetBtn.addEventListener('click', resetAll);
     if(showAnswerBtn) showAnswerBtn.addEventListener('click', showAnswer);
-    
     if(handSelectBtn) handSelectBtn.addEventListener('click', openModal);
     if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
     if(selectRandomHandBtn) selectRandomHandBtn.addEventListener('click', selectRandomHandOption);
-    
     window.addEventListener('click', (e) => {
         if (e.target === handModal) closeModal();
     });
 
-    // 핸드 그리드 생성
-    createHandGrid();
-
-    // 데이터 로드 시작
+    // === 3. 데이터 로드 시작 ===
+    createHandGrid(); // 핸드 그리드 생성
     loadData();
 });
 
-function createHandGrid() {
-    if (!handGrid) return;
-    handGrid.innerHTML = '';
-    
-    for (let i = 0; i < ranks.length; i++) {
-        for (let j = 0; j < ranks.length; j++) {
-            let hand = '';
-            let type = '';
-            
-            if (i === j) {
-                hand = ranks[i] + ranks[j];
-                type = 'cell-pair';
-                if(allHands.length < 169) allHands.push(hand);
-            } else if (i < j) {
-                hand = ranks[i] + ranks[j] + 's';
-                type = 'cell-suited';
-                if(allHands.length < 169) allHands.push(hand);
-            } else {
-                hand = ranks[j] + ranks[i] + 'o';
-                type = 'cell-offsuit';
-                if(allHands.length < 169) allHands.push(hand);
-            }
-
-            const cell = document.createElement('div');
-            cell.className = `grid-cell ${type}`;
-            cell.textContent = hand;
-            cell.onclick = () => selectHand(hand);
-            handGrid.appendChild(cell);
-        }
-    }
-}
-
+// --- 데이터 로드 함수 ---
 async function loadData() {
     try {
         const fetchPromises = jsonFiles.map(filename => 
@@ -131,7 +107,6 @@ async function loadData() {
             if(loadingArea) loadingArea.style.display = 'none';
             if(appArea) appArea.classList.remove('hidden');
             initApp();
-            console.log(`✅ 총 ${loadedCount}개의 파일 로드 완료`);
         } else {
             if(statusMsg) {
                 statusMsg.textContent = "데이터 로드 실패. 콘솔 확인.";
@@ -143,6 +118,8 @@ async function loadData() {
         console.error("치명적 오류:", error);
     }
 }
+
+// --- 앱 초기화 및 UI 로직 ---
 
 function initApp() {
     if (!stackSelect) return;
@@ -156,7 +133,7 @@ function initApp() {
         stackSelect.appendChild(option);
     });
 
-    stackSelect.addEventListener('change', updatePosSelect);
+    if(stackSelect) stackSelect.addEventListener('change', updatePosSelect);
     updatePosSelect();
 }
 
@@ -166,60 +143,4 @@ function updatePosSelect() {
     posSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
 
     if (selectedStack !== 'random' && strategies[selectedStack]) {
-        const order = ["UTG", "UTG1", "UTG2", "MP", "HJ", "CO", "BTN", "BU", "SB", "BB"];
-        const positions = Object.keys(strategies[selectedStack].positions).sort((a, b) => {
-            return order.indexOf(a) - order.indexOf(b);
-        });
-
-        positions.forEach(pos => {
-            const option = document.createElement('option');
-            option.value = pos;
-            option.textContent = pos;
-            posSelect.appendChild(option);
-        });
-    }
-}
-
-function getRandomItem(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
-
-// --- 핸드 선택 로직 ---
-function openModal() { if(handModal) handModal.classList.remove('hidden'); }
-function closeModal() { if(handModal) handModal.classList.add('hidden'); }
-
-function selectHand(hand) {
-    selectedHandValue = hand;
-    if(handSelectBtn) handSelectBtn.textContent = hand;
-    closeModal();
-}
-
-function selectRandomHandOption() {
-    selectedHandValue = 'random';
-    if(handSelectBtn) handSelectBtn.textContent = 'Random (랜덤)';
-    closeModal();
-}
-
-// --- 초기화 로직 ---
-function resetAll() {
-    if(stackSelect) stackSelect.value = 'random';
-    updatePosSelect(); 
-    selectRandomHandOption();
-    
-    if(answerBox) answerBox.classList.add('hidden');
-    if(showAnswerBtn) {
-        showAnswerBtn.disabled = true;
-        showAnswerBtn.textContent = "정답 보기";
-        showAnswerBtn.style.backgroundColor = "var(--accent)";
-    }
-    if(handText) {
-        handText.textContent = "?";
-        handText.style.color = "var(--text)";
-    }
-    if(displayStack) displayStack.textContent = "Stack: --";
-    if(displayPos) displayPos.textContent = "Pos: --";
-    
-    currentQuiz = null;
-}
-
-// --- 퀴즈 생성 ---
+        const order = ["UTG", "UTG1", "UTG2", "MP
