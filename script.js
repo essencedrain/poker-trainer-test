@@ -14,14 +14,15 @@ let strategies = {};
 let currentQuiz = null;
 let selectedHandValue = 'random'; 
 
-// 169 핸드 목록 생성 (그리드 생성 함수에서 채워짐)
+// 169 핸드 목록 생성 및 그리드 정의
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-const allHands = []; // 그리드 생성 시 169개 핸드가 채워집니다.
+const allHands = [];
 
 // DOM 요소 참조 (DOMContentLoaded 안에서 바인딩됨)
 let stackSelect, posSelect, runBtn, resetBtn, showAnswerBtn, handSelectBtn;
 let handModal, closeModalBtn, handGrid, selectRandomHandBtn;
-let strategyName, handText, displayStack, displayPos;
+let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
+
 
 // --- 핸드 그리드 생성 함수 ---
 function createHandGrid() {
@@ -29,6 +30,7 @@ function createHandGrid() {
     handGrid.innerHTML = '';
     
     // allHands 배열 초기화 및 채우기
+    // (createHandGrid 함수가 DOMContentLoaded보다 먼저 실행될 수도 있기에 allHands 배열을 여기서 채움)
     if (allHands.length === 0) {
         for (let i = 0; i < ranks.length; i++) {
             for (let j = 0; j < ranks.length; j++) {
@@ -40,8 +42,7 @@ function createHandGrid() {
             }
         }
     }
-    
-    // 그리드 셀 생성
+
     let handIndex = 0;
     for (let i = 0; i < ranks.length; i++) {
         for (let j = 0; j < ranks.length; j++) {
@@ -75,12 +76,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     displayStack = document.getElementById('displayStack');
     displayPos = document.getElementById('displayPos');
     
-    // 모달 요소
+    // 모달 요소 바인딩
     handSelectBtn = document.getElementById('handSelectBtn');
     handModal = document.getElementById('handModal');
     closeModalBtn = document.getElementById('closeModalBtn');
     handGrid = document.getElementById('handGrid');
     selectRandomHandBtn = document.getElementById('selectRandomHandBtn');
+    loadingArea = document.getElementById('loadingArea');
+    answerBox = document.getElementById('answerBox');
     
     // 2. 이벤트 리스너 연결
     if(runBtn) runBtn.addEventListener('click', generateQuiz);
@@ -97,15 +100,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     // 3. 핸드 그리드 생성
     createHandGrid(); 
     
-    // 4. 데이터 로드
+    // 4. 데이터 로드 시작
     loadData();
 });
 
 
 async function loadData() {
-    // ... (이하 loadData 함수는 이전과 동일) ...
-    // (안전을 위해 loadData 함수 내용을 생략하고, 원본 파일의 loadData 함수가 정상이라고 가정합니다.)
-    
     try {
         const fetchPromises = jsonFiles.map(filename => 
             fetch(filename)
@@ -134,15 +134,15 @@ async function loadData() {
         });
 
         if (loadedCount > 0) {
-            // 로딩 성공 후 앱 초기화
-            const loadingArea = document.getElementById('loadingArea');
-            const appArea = document.getElementById('appArea');
             if(loadingArea) loadingArea.style.display = 'none';
             if(appArea) appArea.classList.remove('hidden');
             initApp();
             console.log(`✅ 총 ${loadedCount}개의 파일 로드 완료`);
         } else {
-            console.error("데이터 로드 실패. 콘솔 확인.");
+            if(statusMsg) {
+                statusMsg.textContent = "데이터 로드 실패. 콘솔 확인.";
+                statusMsg.style.color = "#f44336";
+            }
         }
 
     } catch (error) {
@@ -150,6 +150,7 @@ async function loadData() {
     }
 }
 
+// --- 앱 초기화 및 UI 로직 ---
 
 function initApp() {
     if (!stackSelect) return;
@@ -166,8 +167,6 @@ function initApp() {
     if(stackSelect) stackSelect.addEventListener('change', updatePosSelect);
     updatePosSelect();
 }
-
-// ... (나머지 함수들은 이전과 동일하게 유지)
 
 function updatePosSelect() {
     if (!posSelect) return;
@@ -310,8 +309,3 @@ function showAnswer() {
         showAnswerBtn.style.backgroundColor = "#444";
     }
 }
-
-// 이벤트 리스너
-runBtn.addEventListener('click', generateQuiz);
-if (resetBtn) resetBtn.addEventListener('click', resetAll);
-showAnswerBtn.addEventListener('click', showAnswer);
