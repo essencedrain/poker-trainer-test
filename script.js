@@ -123,7 +123,7 @@ async function loadData() {
 
 function initApp() {
     if (!stackSelect) return;
-    stackSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
+    stackSelect.innerHTML = '<option value="random">Random (랜덤)</option>'; // 에러 발생 지점
     
     const stacks = Object.keys(strategies).sort(); 
     stacks.forEach(stack => {
@@ -138,9 +138,10 @@ function initApp() {
 }
 
 function updatePosSelect() {
-    if (!posSelect) return;
+    if (!posSelect || !stackSelect) return; // safety check
     const selectedStack = stackSelect.value;
     posSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
 
     if (selectedStack !== 'random' && strategies[selectedStack]) {
         const order = ["UTG", "UTG1", "UTG2", "MP
+
