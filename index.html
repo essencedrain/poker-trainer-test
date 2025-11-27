@@ -34,13 +34,12 @@
                 </div>
                 <div class="select-group">
                     <label>핸드 선택</label>
-                    <select id="handSelect">
-                        <option value="random">Random (랜덤)</option>
-                        </select>
+                    <button id="handSelectBtn" class="hand-select-btn">Random (랜덤)</button>
                 </div>
             </div>
 
-            <div class="buttons">
+            <div class="buttons-col">
+                <button id="resetBtn" class="btn-reset">🔄 조건 초기화 (전체 랜덤)</button>
                 <button id="runBtn" class="btn-primary">문제 풀기</button>
             </div>
 
@@ -63,6 +62,20 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <div id="handModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>핸드 선택</h3>
+                <button id="closeModalBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="hand-grid-container">
+                <div id="handGrid" class="hand-grid">
+                    </div>
+            </div>
+            <button id="selectRandomHandBtn" class="btn-full-random">Random (랜덤 선택)</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
