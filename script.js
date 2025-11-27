@@ -1,5 +1,5 @@
 // ============================================================
-// 1. 파일 목록 설정 (서버에 올린 파일명과 정확히 일치해야 합니다)
+// 1. 파일 목록 설정
 // ============================================================
 const jsonFiles = [
     // 10-20BB Open Raising
@@ -20,10 +20,10 @@ const jsonFiles = [
     "OR 20-40BB UTG.json",
     "OR 20-40BB UTG1.json",
     "OR 20-40BB UTG2.json",
-    "OR 20-40BB SB.json", // 만약 파일명이 "SB Mixed"라면 수정 필요
+    "OR 20-40BB SB.json",
 
     // 40-100BB Response vs 3Bet
-    "OR 40-100BB BU.json", // 스크린샷에 BU라고 되어있음
+    "OR 40-100BB BU.json",
     "OR 40-100BB CO.json",
     "OR 40-100BB HJ.json",
     "OR 40-100BB MP.json",
@@ -51,7 +51,7 @@ const displayStack = document.getElementById('displayStack');
 const displayPos = document.getElementById('displayPos');
 const handText = document.getElementById('handText');
 const strategyName = document.getElementById('strategyName');
-const actionType = document.getElementById('actionType');
+// const actionType ... (삭제됨)
 
 // 169 핸드 생성
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
@@ -73,17 +73,15 @@ window.addEventListener('DOMContentLoaded', async () => {
             fetch(filename)
                 .then(res => {
                     if (!res.ok) throw new Error(`HTTP 에러: ${res.status}`);
-                    return res.text(); // 1. 일단 텍스트로 받습니다.
+                    return res.text();
                 })
                 .then(text => {
                     try {
-                        return JSON.parse(text); // 2. 여기서 JSON으로 변환 시도
+                        return JSON.parse(text);
                     } catch (err) {
-                        // ★ 여기서 오류 난 파일명을 알려줍니다!
                         console.error(`🚨 문법 오류 발견! 파일명: ${filename}`);
                         console.error(`❌ 오류 내용: ${err.message}`);
-                        console.warn(`힌트: 해당 파일의 ${err.message.match(/line \d+/)} 근처에 콤마(,)가 빠졌는지 확인해보세요.`);
-                        return null; // 오류 난 파일은 건너뜀
+                        return null;
                     }
                 })
                 .catch(err => {
@@ -94,11 +92,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         const results = await Promise.all(fetchPromises);
         
-        // 데이터 병합 로직 (유효한 데이터만)
+        // 데이터 병합 로직
         let loadedCount = 0;
         results.forEach(data => {
             if (!data || !data.meta) return;
-
             const stack = data.meta.stack_depth;
             const pos = data.meta.position;
             const action = data.meta.action_type;
@@ -113,7 +110,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             loadedCount++;
         });
 
-        // 로딩 완료 처리
         if (loadedCount > 0) {
             loadingArea.style.display = 'none';
             appArea.classList.remove('hidden');
@@ -130,7 +126,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 function initApp() {
-    // 스택 드롭다운
     stackSelect.innerHTML = '<option value="random">Random</option>';
     const stacks = Object.keys(strategies).sort(); 
     stacks.forEach(stack => {
@@ -149,7 +144,6 @@ function updatePosSelect() {
     posSelect.innerHTML = '<option value="random">Random</option>';
 
     if (selectedStack !== 'random' && strategies[selectedStack]) {
-        // 포지션 정렬 순서
         const order = ["UTG", "UTG1", "UTG2", "MP", "HJ", "CO", "BTN", "BU", "SB", "BB"];
         const positions = Object.keys(strategies[selectedStack].positions).sort((a, b) => {
             return order.indexOf(a) - order.indexOf(b);
@@ -190,7 +184,6 @@ function generateQuiz(isRandomMode) {
     displayPos.textContent = pos;
     handText.textContent = hand;
     
-    // 핸드 색상
     if (hand.includes('s')) handText.style.color = '#1e88e5'; 
     else if (hand.includes('o')) handText.style.color = '#757575'; 
     else handText.style.color = '#e53935'; 
@@ -206,7 +199,7 @@ function showAnswer() {
     const { stack, pos, hand } = currentQuiz;
     
     const posData = strategies[stack]?.positions[pos];
-    const metaAction = strategies[stack]?.actionType;
+    // const metaAction = strategies[stack]?.actionType; (사용 안함)
 
     let resultStrategy = "FOLD (Not in range)";
     let resultColor = "#888"; 
@@ -232,7 +225,7 @@ function showAnswer() {
 
     strategyName.textContent = resultStrategy;
     strategyName.style.color = resultColor;
-    actionType.textContent = metaAction || "Action";
+    // actionType.textContent = metaAction; (삭제됨)
 
     answerBox.classList.remove('hidden');
     showAnswerBtn.disabled = true;
