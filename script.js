@@ -2,29 +2,33 @@
 // 1. 파일 목록 설정
 // ============================================================
 const jsonFiles = [
+    // 10-20BB Open Raising
     "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", "OR 10-20BB MP.json",
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB UTG2.json", "OR 10-20BB SB.json",
+
+    // 20-40BB Response vs 3Bet
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB MP.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB UTG2.json", "OR 20-40BB SB.json",
+
+    // 40-100BB Response vs 3Bet
     "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB MP.json",
     "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB UTG2.json"
 ];
 
 // ============================================================
-// 2. 앱 로직
+// 2. 앱 로직 시작
 // ============================================================
 let strategies = {}; 
 let currentQuiz = null;
 
-// DOM 요소
+// DOM 요소 참조 (randomBtn 제거됨)
 const statusMsg = document.getElementById('statusMsg');
 const loadingArea = document.getElementById('loadingArea');
 const appArea = document.getElementById('appArea');
 const stackSelect = document.getElementById('stackSelect');
 const posSelect = document.getElementById('posSelect');
-const handSelect = document.getElementById('handSelect'); // 새로 추가됨
+const handSelect = document.getElementById('handSelect'); // 핸드 선택 추가
 const runBtn = document.getElementById('runBtn');
-// randomBtn 삭제됨
 const showAnswerBtn = document.getElementById('showAnswerBtn');
 const answerBox = document.getElementById('answerBox');
 const displayStack = document.getElementById('displayStack');
@@ -32,7 +36,7 @@ const displayPos = document.getElementById('displayPos');
 const handText = document.getElementById('handText');
 const strategyName = document.getElementById('strategyName');
 
-// 169 핸드 생성 및 정렬
+// 169 핸드 생성
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const allHands = [];
 for (let i = 0; i < ranks.length; i++) {
@@ -45,46 +49,60 @@ for (let i = 0; i < ranks.length; i++) {
     }
 }
 
-// 초기화
+// 초기화: 페이지 로드 시 모든 JSON fetch
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const fetchPromises = jsonFiles.map(filename => 
             fetch(filename)
                 .then(res => {
-                    if (!res.ok) throw new Error(`HTTP 에러`);
+                    if (!res.ok) throw new Error(`HTTP 에러: ${res.status}`);
                     return res.text();
                 })
                 .then(text => {
                     try { return JSON.parse(text); } 
-                    catch (err) { console.error(`JSON 오류: ${filename}`); return null; }
+                    catch (err) {
+                        console.error(`🚨 문법 오류 발견! 파일명: ${filename}`);
+                        return null;
+                    }
                 })
-                .catch(err => { console.error(`로드 실패: ${filename}`); return null; })
+                .catch(err => {
+                    console.error(`❌ 파일 로드 실패: ${filename}`, err);
+                    return null;
+                })
         );
 
         const results = await Promise.all(fetchPromises);
         
+        let loadedCount = 0;
         results.forEach(data => {
             if (!data || !data.meta) return;
             const stack = data.meta.stack_depth;
             const pos = data.meta.position;
             
-            if (!strategies[stack]) strategies[stack] = { positions: {} };
+            if (!strategies[stack]) {
+                strategies[stack] = { positions: {} };
+            }
             strategies[stack].positions[pos] = data.strategy;
+            loadedCount++;
         });
 
-        loadingArea.style.display = 'none';
-        appArea.classList.remove('hidden');
-        initApp();
+        if (loadedCount > 0) {
+            loadingArea.style.display = 'none';
+            appArea.classList.remove('hidden');
+            initApp();
+            console.log(`✅ 총 ${loadedCount}개의 파일 로드 완료`);
+        } else {
+            statusMsg.textContent = "로딩 실패. 콘솔 확인.";
+            statusMsg.style.color = "#f44336";
+        }
 
     } catch (error) {
-        console.error(error);
-        statusMsg.textContent = "데이터 로드 실패";
-        statusMsg.style.color = "#f44336";
+        console.error("치명적 오류:", error);
     }
 });
 
 function initApp() {
-    // 1. 스택 초기화
+    // 1. 스택 드롭다운 초기화
     stackSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
     const stacks = Object.keys(strategies).sort(); 
     stacks.forEach(stack => {
@@ -94,14 +112,16 @@ function initApp() {
         stackSelect.appendChild(option);
     });
 
-    // 2. 핸드 초기화 (전체 핸드 목록 추가)
-    handSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
-    allHands.forEach(hand => {
-        const option = document.createElement('option');
-        option.value = hand;
-        option.textContent = hand;
-        handSelect.appendChild(option);
-    });
+    // 2. 핸드 드롭다운 초기화 (핸드 선택 기능)
+    if (handSelect) {
+        handSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
+        allHands.forEach(hand => {
+            const option = document.createElement('option');
+            option.value = hand;
+            option.textContent = hand;
+            handSelect.appendChild(option);
+        });
+    }
 
     stackSelect.addEventListener('change', updatePosSelect);
     updatePosSelect();
@@ -130,7 +150,7 @@ function getRandomItem(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// 퀴즈 생성 (통합된 함수)
+// 퀴즈 생성 로직 (드롭다운 값에 따라 랜덤 또는 고정)
 function generateQuiz() {
     if (!strategies) return;
 
@@ -148,9 +168,15 @@ function generateQuiz() {
         pos = getRandomItem(validPositions);
     }
 
-    // 3. 핸드 결정 (선택값 or 랜덤)
-    let hand = handSelect.value;
-    if (hand === 'random') {
+    // 3. 핸드 결정
+    let hand = 'AA'; // 기본값
+    if (handSelect) {
+        if (handSelect.value === 'random') {
+            hand = getRandomItem(allHands);
+        } else {
+            hand = handSelect.value;
+        }
+    } else {
         hand = getRandomItem(allHands);
     }
 
@@ -161,10 +187,12 @@ function generateQuiz() {
     displayPos.textContent = pos;
     handText.textContent = hand;
     
+    // 핸드 색상
     if (hand.includes('s')) handText.style.color = '#1e88e5'; 
     else if (hand.includes('o')) handText.style.color = '#757575'; 
     else handText.style.color = '#e53935'; 
 
+    // 정답 가리기
     answerBox.classList.add('hidden');
     showAnswerBtn.disabled = false;
     showAnswerBtn.textContent = "정답 보기";
@@ -208,5 +236,6 @@ function showAnswer() {
     showAnswerBtn.style.backgroundColor = "#444";
 }
 
+// 이벤트 리스너 (randomBtn 제거됨)
 runBtn.addEventListener('click', generateQuiz);
 showAnswerBtn.addEventListener('click', showAnswer);
