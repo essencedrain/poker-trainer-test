@@ -2,33 +2,26 @@
 // 1. 파일 목록 설정
 // ============================================================
 const jsonFiles = [
-    // 10-20BB Open Raising
     "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", "OR 10-20BB MP.json",
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB UTG2.json", "OR 10-20BB SB.json",
-
-    // 20-40BB Response vs 3Bet
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB MP.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB UTG2.json", "OR 20-40BB SB.json",
-
-    // 40-100BB Response vs 3Bet
     "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB MP.json",
     "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB UTG2.json"
 ];
 
-// ============================================================
-// 2. 앱 로직 시작
-// ============================================================
 let strategies = {}; 
 let currentQuiz = null;
+let selectedHandValue = 'random'; // 현재 선택된 핸드 ('random' 또는 'AA' 등)
 
-// DOM 요소 참조 (randomBtn 제거됨)
+// DOM 요소
 const statusMsg = document.getElementById('statusMsg');
 const loadingArea = document.getElementById('loadingArea');
 const appArea = document.getElementById('appArea');
 const stackSelect = document.getElementById('stackSelect');
 const posSelect = document.getElementById('posSelect');
-const handSelect = document.getElementById('handSelect'); // 핸드 선택 추가
 const runBtn = document.getElementById('runBtn');
+const resetBtn = document.getElementById('resetBtn'); // 초기화 버튼
 const showAnswerBtn = document.getElementById('showAnswerBtn');
 const answerBox = document.getElementById('answerBox');
 const displayStack = document.getElementById('displayStack');
@@ -36,73 +29,89 @@ const displayPos = document.getElementById('displayPos');
 const handText = document.getElementById('handText');
 const strategyName = document.getElementById('strategyName');
 
-// 169 핸드 생성
+// 모달 관련 DOM
+const handSelectBtn = document.getElementById('handSelectBtn');
+const handModal = document.getElementById('handModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const handGrid = document.getElementById('handGrid');
+const selectRandomHandBtn = document.getElementById('selectRandomHandBtn');
+
+// 169 핸드 생성 및 그리드 그리기
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const allHands = [];
-for (let i = 0; i < ranks.length; i++) {
-    for (let j = i; j < ranks.length; j++) {
-        if (i === j) allHands.push(ranks[i] + ranks[j]);
-        else {
-            allHands.push(ranks[i] + ranks[j] + 's');
-            allHands.push(ranks[i] + ranks[j] + 'o');
+
+// 그리드 생성 함수
+function createHandGrid() {
+    handGrid.innerHTML = '';
+    for (let i = 0; i < ranks.length; i++) {
+        for (let j = 0; j < ranks.length; j++) {
+            let hand = '';
+            let type = '';
+            
+            if (i === j) {
+                hand = ranks[i] + ranks[j];
+                type = 'cell-pair';
+                allHands.push(hand);
+            } else if (i < j) {
+                hand = ranks[i] + ranks[j] + 's';
+                type = 'cell-suited';
+                allHands.push(hand);
+            } else {
+                hand = ranks[j] + ranks[i] + 'o';
+                type = 'cell-offsuit';
+                allHands.push(hand);
+            }
+
+            const cell = document.createElement('div');
+            cell.className = `grid-cell ${type}`;
+            cell.textContent = hand;
+            cell.onclick = () => selectHand(hand);
+            handGrid.appendChild(cell);
         }
     }
 }
 
-// 초기화: 페이지 로드 시 모든 JSON fetch
+// 초기화: 페이지 로드
 window.addEventListener('DOMContentLoaded', async () => {
+    createHandGrid(); // 그리드 생성
+
     try {
         const fetchPromises = jsonFiles.map(filename => 
             fetch(filename)
                 .then(res => {
-                    if (!res.ok) throw new Error(`HTTP 에러: ${res.status}`);
+                    if (!res.ok) throw new Error(`HTTP 에러`);
                     return res.text();
                 })
                 .then(text => {
                     try { return JSON.parse(text); } 
-                    catch (err) {
-                        console.error(`🚨 문법 오류 발견! 파일명: ${filename}`);
-                        return null;
-                    }
+                    catch (err) { console.error(`JSON 오류: ${filename}`); return null; }
                 })
-                .catch(err => {
-                    console.error(`❌ 파일 로드 실패: ${filename}`, err);
-                    return null;
-                })
+                .catch(err => { console.error(`로드 실패: ${filename}`); return null; })
         );
 
         const results = await Promise.all(fetchPromises);
         
-        let loadedCount = 0;
         results.forEach(data => {
             if (!data || !data.meta) return;
             const stack = data.meta.stack_depth;
             const pos = data.meta.position;
             
-            if (!strategies[stack]) {
-                strategies[stack] = { positions: {} };
-            }
+            if (!strategies[stack]) strategies[stack] = { positions: {} };
             strategies[stack].positions[pos] = data.strategy;
-            loadedCount++;
         });
 
-        if (loadedCount > 0) {
-            loadingArea.style.display = 'none';
-            appArea.classList.remove('hidden');
-            initApp();
-            console.log(`✅ 총 ${loadedCount}개의 파일 로드 완료`);
-        } else {
-            statusMsg.textContent = "로딩 실패. 콘솔 확인.";
-            statusMsg.style.color = "#f44336";
-        }
+        loadingArea.style.display = 'none';
+        appArea.classList.remove('hidden');
+        initApp();
 
     } catch (error) {
-        console.error("치명적 오류:", error);
+        console.error(error);
+        statusMsg.textContent = "데이터 로드 실패";
+        statusMsg.style.color = "#f44336";
     }
 });
 
 function initApp() {
-    // 1. 스택 드롭다운 초기화
     stackSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
     const stacks = Object.keys(strategies).sort(); 
     stacks.forEach(stack => {
@@ -111,17 +120,6 @@ function initApp() {
         option.textContent = stack.toUpperCase();
         stackSelect.appendChild(option);
     });
-
-    // 2. 핸드 드롭다운 초기화 (핸드 선택 기능)
-    if (handSelect) {
-        handSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
-        allHands.forEach(hand => {
-            const option = document.createElement('option');
-            option.value = hand;
-            option.textContent = hand;
-            handSelect.appendChild(option);
-        });
-    }
 
     stackSelect.addEventListener('change', updatePosSelect);
     updatePosSelect();
@@ -150,33 +148,60 @@ function getRandomItem(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// 퀴즈 생성 로직 (드롭다운 값에 따라 랜덤 또는 고정)
+// --- 핸드 선택 로직 ---
+function openModal() { handModal.classList.remove('hidden'); }
+function closeModal() { handModal.classList.add('hidden'); }
+
+function selectHand(hand) {
+    selectedHandValue = hand;
+    handSelectBtn.textContent = hand;
+    closeModal();
+}
+
+function selectRandomHandOption() {
+    selectedHandValue = 'random';
+    handSelectBtn.textContent = 'Random (랜덤)';
+    closeModal();
+}
+
+// --- 초기화 로직 ---
+function resetAll() {
+    stackSelect.value = 'random';
+    updatePosSelect(); // 포지션도 random으로 리셋됨
+    selectRandomHandOption();
+    
+    // UI 초기화
+    answerBox.classList.add('hidden');
+    showAnswerBtn.disabled = true;
+    showAnswerBtn.textContent = "정답 보기";
+    showAnswerBtn.style.backgroundColor = "var(--accent)";
+    handText.textContent = "?";
+    handText.style.color = "var(--text)";
+    displayStack.textContent = "Stack: --";
+    displayPos.textContent = "Pos: --";
+}
+
+// --- 퀴즈 생성 ---
 function generateQuiz() {
     if (!strategies) return;
 
-    // 1. 스택 결정
+    // 1. 스택
     let stack = stackSelect.value;
     if (stack === 'random') {
         const stacks = Object.keys(strategies);
         stack = getRandomItem(stacks);
     }
 
-    // 2. 포지션 결정
+    // 2. 포지션
     let pos = posSelect.value;
     if (pos === 'random') {
         const validPositions = Object.keys(strategies[stack].positions);
         pos = getRandomItem(validPositions);
     }
 
-    // 3. 핸드 결정
-    let hand = 'AA'; // 기본값
-    if (handSelect) {
-        if (handSelect.value === 'random') {
-            hand = getRandomItem(allHands);
-        } else {
-            hand = handSelect.value;
-        }
-    } else {
+    // 3. 핸드 (선택값 or 랜덤)
+    let hand = selectedHandValue;
+    if (hand === 'random') {
         hand = getRandomItem(allHands);
     }
 
@@ -187,12 +212,10 @@ function generateQuiz() {
     displayPos.textContent = pos;
     handText.textContent = hand;
     
-    // 핸드 색상
     if (hand.includes('s')) handText.style.color = '#1e88e5'; 
     else if (hand.includes('o')) handText.style.color = '#757575'; 
     else handText.style.color = '#e53935'; 
 
-    // 정답 가리기
     answerBox.classList.add('hidden');
     showAnswerBtn.disabled = false;
     showAnswerBtn.textContent = "정답 보기";
@@ -202,7 +225,6 @@ function generateQuiz() {
 function showAnswer() {
     if (!currentQuiz) return;
     const { stack, pos, hand } = currentQuiz;
-    
     const posData = strategies[stack]?.positions[pos];
 
     let resultStrategy = "FOLD (Not in range)";
@@ -236,6 +258,18 @@ function showAnswer() {
     showAnswerBtn.style.backgroundColor = "#444";
 }
 
-// 이벤트 리스너 (randomBtn 제거됨)
+// 이벤트 리스너
 runBtn.addEventListener('click', generateQuiz);
+resetBtn.addEventListener('click', resetAll);
 showAnswerBtn.addEventListener('click', showAnswer);
+
+// 모달 관련 이벤트
+handSelectBtn.addEventListener('click', openModal);
+closeModalBtn.addEventListener('click', closeModal);
+selectRandomHandOptionBtn = document.getElementById('selectRandomHandBtn');
+selectRandomHandOptionBtn.addEventListener('click', selectRandomHandOption);
+
+// 모달 바깥 클릭 시 닫기
+window.addEventListener('click', (e) => {
+    if (e.target === handModal) closeModal();
+});
