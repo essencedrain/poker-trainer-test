@@ -1,5 +1,5 @@
 // ============================================================
-// 1. 파일 목록 설정
+// 1. 파일 목록 설정 (파일명을 정확히 확인하세요!)
 // ============================================================
 const jsonFiles = [
     // 10-20BB Open Raising
@@ -20,7 +20,7 @@ const jsonFiles = [
     "OR 20-40BB UTG.json",
     "OR 20-40BB UTG1.json",
     "OR 20-40BB UTG2.json",
-    "OR 20-40BB SB.json",
+    "OR 20-40BB SB.json", // 파일명이 중복된다면 하나는 "SB Mixed.json" 등으로 변경하고 파일명도 맞춰야 합니다.
 
     // 40-100BB Response vs 3Bet
     "OR 40-100BB BU.json",
@@ -51,7 +51,7 @@ const displayStack = document.getElementById('displayStack');
 const displayPos = document.getElementById('displayPos');
 const handText = document.getElementById('handText');
 const strategyName = document.getElementById('strategyName');
-// const actionType ... (삭제됨)
+// actionType 관련 변수는 삭제했습니다.
 
 // 169 핸드 생성
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
@@ -92,19 +92,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         const results = await Promise.all(fetchPromises);
         
-        // 데이터 병합 로직
         let loadedCount = 0;
         results.forEach(data => {
             if (!data || !data.meta) return;
             const stack = data.meta.stack_depth;
             const pos = data.meta.position;
-            const action = data.meta.action_type;
-
+            // action_type은 이제 사용하지 않지만 로직 유지를 위해 읽기는 함
+            
             if (!strategies[stack]) {
-                strategies[stack] = {
-                    actionType: action,
-                    positions: {}
-                };
+                strategies[stack] = { positions: {} };
             }
             strategies[stack].positions[pos] = data.strategy;
             loadedCount++;
@@ -116,7 +112,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             initApp();
             console.log(`✅ 총 ${loadedCount}개의 파일이 정상적으로 로드되었습니다.`);
         } else {
-            statusMsg.textContent = "JSON 파일 오류입니다. F12 콘솔을 확인하세요.";
+            statusMsg.textContent = "JSON 로드 실패. 콘솔(F12)을 확인하세요.";
             statusMsg.style.color = "#f44336";
         }
 
@@ -199,7 +195,6 @@ function showAnswer() {
     const { stack, pos, hand } = currentQuiz;
     
     const posData = strategies[stack]?.positions[pos];
-    // const metaAction = strategies[stack]?.actionType; (사용 안함)
 
     let resultStrategy = "FOLD (Not in range)";
     let resultColor = "#888"; 
@@ -225,7 +220,7 @@ function showAnswer() {
 
     strategyName.textContent = resultStrategy;
     strategyName.style.color = resultColor;
-    // actionType.textContent = metaAction; (삭제됨)
+    // actionType 관련 코드는 모두 삭제되었습니다.
 
     answerBox.classList.remove('hidden');
     showAnswerBtn.disabled = true;
