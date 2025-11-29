@@ -1,22 +1,95 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v2.4
+ * Version: v2.6 (External Auth)
  */
+
+// ============================================================
+// 🔐 보안 로직 (auth.json 연동)
+// ============================================================
+
+// 암호화 함수
+async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// 로그인 체크 (서버의 auth.json과 대조)
+async function checkLoginStatus() {
+    const overlay = document.getElementById("loginOverlay");
+    const loginMsg = document.getElementById("loginMsg");
+    
+    // 1. 세션 확인 (이미 로그인했으면 패스)
+    if (sessionStorage.getItem("isLoggedIn") === "true") {
+        overlay.classList.add("hidden-overlay");
+        return true;
+    }
+
+    // 2. 서버에서 최신 비밀번호 해시 가져오기 (캐시 방지 적용)
+    let correctHash = "";
+    try {
+        const res = await fetch(`auth.json?t=${new Date().getTime()}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Auth file missing");
+        const data = await res.json();
+        correctHash = data.hash;
+    } catch (e) {
+        console.error("비밀번호 정보를 불러올 수 없습니다.", e);
+        loginMsg.textContent = "시스템 오류: 관리자에게 문의하세요.";
+        return false;
+    }
+
+    // 3. URL 매직 링크 확인 (?code=비밀번호)
+    const urlParams = new URLSearchParams(window.location.search);
+    const magicCode = urlParams.get('code');
+
+    if (magicCode) {
+        const inputHash = await sha256(magicCode);
+        if (inputHash === correctHash) {
+            sessionStorage.setItem("isLoggedIn", "true");
+            overlay.classList.add("hidden-overlay");
+            // 주소창에서 비밀번호 감추기
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return true;
+        } else {
+            loginMsg.textContent = "링크가 만료되었거나 비밀번호가 틀렸습니다.";
+        }
+    }
+    
+    // 4. 수동 입력 버튼 이벤트 연결 (클로저 문제 해결을 위해 전역 변수 대신 여기서 처리하거나 리스너 재등록)
+    const btn = document.getElementById('loginBtn');
+    const input = document.getElementById('passwordInput');
+    
+    // 기존 리스너 제거가 어려우므로, onclick 덮어쓰기 방식으로 단순화
+    btn.onclick = async () => {
+        const val = input.value;
+        const valHash = await sha256(val);
+        if (valHash === correctHash) {
+            sessionStorage.setItem("isLoggedIn", "true");
+            overlay.classList.add("hidden-overlay");
+        } else {
+            loginMsg.textContent = "비밀번호가 틀렸습니다.";
+            input.value = "";
+        }
+    };
+
+    input.onkeypress = async (e) => {
+        if (e.key === 'Enter') btn.click();
+    };
+    
+    return false; 
+}
 
 // ============================================================
 // 1. 파일 목록 설정
 // ============================================================
 const jsonFiles = [
-    // 10-20BB Open Raising
     "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", "OR 10-20BB LJ.json",
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB MP.json", "OR 10-20BB SB.json",
-    // 20-40BB
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB LJ.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB MP.json", "OR 20-40BB SB.json",
-    // 40BB+
-    "OR 40BB+ BU.json", "OR 40BB+ CO.json", "OR 40BB+ HJ.json", "OR 40BB+ LJ.json",
-    "OR 40BB+ UTG.json", "OR 40BB+ UTG1.json", "OR 40BB+ MP.json",
-    // PoF
+    "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB LJ.json",
+    "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB MP.json",
     "Pushing Ranges 10BB.json"
 ];
 
@@ -37,31 +110,19 @@ let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
 // --- 색상 결정 헬퍼 함수 ---
 function getStrategyClass(stratName) {
     const lower = stratName.toLowerCase();
-    
-    // 1. Push
     if (lower.includes('push')) return 'strat-push';
-    
-    // 2. Bluff
     if (lower.includes('bluff')) return 'strat-purple';
-
-    // 3. Mixed Strategies
     if (lower.includes('raise') && lower.includes('fold')) return 'strat-brown';
     if (lower.includes('raise') && lower.includes('call')) return 'strat-orange';
     if (lower.includes('limp') && lower.includes('fold')) return 'strat-cyan';
     if (lower.includes('limp') && lower.includes('call')) return 'strat-cyan';
-
-    // 4. Pure Actions
     if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) return 'strat-raise';
     if (lower.includes('limp')) return 'strat-green';
     if (lower.includes('call')) return 'strat-call';
-
-    // 5. Explicit Fold (명시된 폴드 전략) -> 파란색
     if (lower.includes('fold')) return 'strat-fold';
-
     return 'strat-other';
 }
 
-// --- 범례 생성 함수 ---
 function renderLegend(data) {
     if (!legendContainer) return;
     legendContainer.innerHTML = '';
@@ -86,7 +147,6 @@ function renderLegend(data) {
     }
 }
 
-// --- 핸드 그리드 렌더링 ---
 function renderHandGrid(mode = 'select', data = null) {
     if (!handGrid) return;
     handGrid.innerHTML = '';
@@ -134,8 +194,6 @@ function renderHandGrid(mode = 'select', data = null) {
                         }
                     }
                 }
-                
-                // 전략에 포함되지 않은 핸드(암묵적 폴드)는 아무 클래스도 주지 않음 (기본 회색)
             }
 
             const cell = document.createElement('div');
@@ -153,6 +211,7 @@ function renderHandGrid(mode = 'select', data = null) {
 
 // --- 메인 실행 ---
 window.addEventListener('DOMContentLoaded', async () => {
+    // 1. DOM 바인딩
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
     runBtn = document.getElementById('runBtn');
@@ -177,23 +236,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     tabPoF = document.getElementById('tabPoF');
     stackControlGroup = document.getElementById('stackControlGroup');
 
+    // 2. 로그인 체크 (비동기)
+    await checkLoginStatus();
+
+    // 3. 이벤트 리스너
     if(runBtn) runBtn.addEventListener('click', generateQuiz);
     if(resetBtn) resetBtn.addEventListener('click', resetAll);
-    
     if(showAnswerBtn) showAnswerBtn.addEventListener('click', handleAnswerBtnClick);
-    
     if(handSelectBtn) handSelectBtn.addEventListener('click', () => openModal('select'));
-    
     if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
     if(selectRandomHandBtn) selectRandomHandBtn.addEventListener('click', selectRandomHandOption);
     
     if(tabOR) tabOR.addEventListener('click', () => switchTab('OR'));
     if(tabPoF) tabPoF.addEventListener('click', () => switchTab('PoF'));
 
-    // [수정] 모달 영역 어디를 눌러도 닫히도록 수정
-    if(handModal) {
-        handModal.addEventListener('click', closeModal);
-    }
+    window.addEventListener('click', (e) => {
+        if (e.target === handModal) closeModal();
+    });
 
     renderHandGrid('select'); 
     loadData();
