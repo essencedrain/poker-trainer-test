@@ -1,5 +1,5 @@
-/* Project: RYE Range Trainer Styles
-    Version: v1.2
+/* Project: 9T's Holdem Tool Styles
+    Version: v1.5
 */
 
 :root {
@@ -42,7 +42,6 @@ body {
 
 h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
 
-/* 작성자 정보 우측 정렬 스타일 */
 .author {
     text-align: right;
     font-size: 0.9rem;
@@ -57,10 +56,11 @@ h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
     justify-content: center;
     gap: 10px;
     margin-bottom: 1rem;
+    margin-top: 1rem;
 }
 
 .tab-btn {
-    padding: 10px 20px;
+    padding: 10px 15px;
     border: none;
     border-radius: 20px;
     background-color: var(--tab-inactive);
@@ -70,7 +70,8 @@ h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
     cursor: pointer;
     transition: all 0.2s;
     flex: 1;
-    max-width: 150px;
+    /* 텍스트가 길어져서 너비 제한을 조금 품 */
+    max-width: 200px;
 }
 
 .tab-btn.active {
@@ -81,7 +82,7 @@ h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
 
 .hidden-control { display: none !important; }
 
-/* 로딩 애니메이션 */
+/* 로딩 */
 .loading-area { color: var(--text-dim); font-size: 0.9rem; }
 .spinner {
     width: 30px; height: 30px;
@@ -114,7 +115,16 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 
 /* 퀴즈 영역 */
 .info-badges { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-.badge { background: #333; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; color: #ccc; border: 1px solid #444; }
+.badge { 
+    background: #333; 
+    padding: 6px 16px; /* 패딩 약간 증가 */
+    border-radius: 12px; 
+    font-size: 1.05rem; /* [수정됨] 0.85rem -> 1.05rem (약 20% 증가) */
+    font-weight: bold;
+    color: #eee; 
+    border: 1px solid #444; 
+}
+
 .hand-card { background: #e0e0e0; color: #121212; width: 160px; height: 100px; margin: 0 auto 1.5rem auto; display: flex; justify-content: center; align-items: center; border-radius: 12px; font-size: 3rem; font-weight: 800; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 4px solid #fff; }
 .answer-box { background: #252525; padding: 15px; border-radius: 8px; border: 1px solid #444; animation: fadeIn 0.3s ease-out; }
 .answer-box h2 { margin: 0; color: var(--text); }
