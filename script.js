@@ -122,9 +122,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadData() {
-    try {
+     try {
+        // ▼ 여기를 수정했습니다 (뒤에 타임스탬프를 붙여서 매번 새 파일로 인식하게 함)
         const fetchPromises = jsonFiles.map(filename => 
-            fetch(filename)
+            // 파일명 뒤에 '?t=' + 현재시간을 붙여서 브라우저가 캐시를 못 쓰게 만듦
+            fetch(`${filename}?t=${new Date().getTime()}`)
                 .then(res => {
                     if (!res.ok) throw new Error(`HTTP 에러`);
                     return res.text();
@@ -376,3 +378,4 @@ function showAnswer() {
         showAnswerBtn.style.backgroundColor = "#444";
     }
 }
+
