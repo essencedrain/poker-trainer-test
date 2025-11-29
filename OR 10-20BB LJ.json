@@ -1,7 +1,7 @@
 {
   "meta": {
     "file_name": "OR 10-20BB MP.json",
-    "position": "MP",
+    "position": "LJ",
     "stack_depth": "10-20bb",
     "action_type": "OPEN_RAISING",
     "source": "Raise Your Edge (RYE) - Image Grid"
@@ -32,4 +32,5 @@
       "KQo", "KJo"
     ]
   }
+
 }
