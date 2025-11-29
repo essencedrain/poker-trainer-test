@@ -1,7 +1,7 @@
 {
   "meta": {
     "file_name": "OR 10-20BB UTG2.json",
-    "position": "UTG2",
+    "position": "MP",
     "stack_depth": "10-20bb",
     "action_type": "OPEN_RAISING",
     "source": "Raise Your Edge (RYE) - Image Grid"
@@ -27,4 +27,5 @@
       "KQo"
     ]
   }
+
 }
