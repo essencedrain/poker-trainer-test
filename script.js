@@ -1,13 +1,13 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v2.0
+ * Version: v2.1
  */
 
 // ============================================================
 // 1. 파일 목록 설정
 // ============================================================
 const jsonFiles = [
-    // 10-20BB
+    // 10-20BB Open Raising
     "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", "OR 10-20BB LJ.json",
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB MP.json", "OR 10-20BB SB.json",
     // 20-40BB
@@ -37,7 +37,8 @@ let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
 // --- 색상 결정 헬퍼 함수 ---
 function getStrategyClass(stratName) {
     const lower = stratName.toLowerCase();
-    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam') || lower.includes('push')) return 'strat-raise';
+    if (lower.includes('push')) return 'strat-push'; // Push는 초록색
+    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) return 'strat-raise';
     if (lower.includes('call')) return 'strat-call';
     if (lower.includes('fold')) return 'strat-fold';
     if (lower.includes('limp')) return 'strat-limp';
@@ -48,23 +49,16 @@ function getStrategyClass(stratName) {
 function renderLegend(data) {
     if (!legendContainer) return;
     legendContainer.innerHTML = '';
-    
-    // PoF 모드
+    legendContainer.classList.remove('hidden');
+
+    // [수정] PoF 모드: 범례 숨김 (요청사항 반영)
     if (currentTab === 'PoF') {
-        const items = [
-            { name: 'PUSH', class: 'strat-push' },
-            { name: 'FOLD', class: 'strat-fold' }
-        ];
-        items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'legend-item';
-            div.innerHTML = `<span class="legend-color ${item.class}"></span>${item.name}`;
-            legendContainer.appendChild(div);
-        });
+        legendContainer.classList.add('hidden'); 
+        return;
     } 
-    // OR 모드
-    else if (data) {
-        // 데이터에 있는 전략 키들만 추출
+    
+    // OR 모드: 범례 표시
+    if (data) {
         const keys = Object.keys(data);
         keys.forEach(key => {
             const cls = getStrategyClass(key);
@@ -81,7 +75,6 @@ function renderHandGrid(mode = 'select', data = null) {
     if (!handGrid) return;
     handGrid.innerHTML = '';
     
-    // Init allHands
     if (allHands.length === 0) {
         for (let i = 0; i < ranks.length; i++) {
             for (let j = 0; j < ranks.length; j++) {
@@ -110,7 +103,7 @@ function renderHandGrid(mode = 'select', data = null) {
                 // PoF Mode Logic
                 if (currentTab === 'PoF') {
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        className += ' strat-push';
+                        className += ' strat-push'; // 초록색 적용
                         stratFound = true;
                     }
                 } 
@@ -125,7 +118,12 @@ function renderHandGrid(mode = 'select', data = null) {
                     }
                 }
                 
-                if (!stratFound) className += ' strat-fold'; // Default to Fold
+                // PoF 모드가 아닐 때만 기본 폴드 색상 적용 (PoF는 Push 아니면 그냥 놔둠? 아니면 Fold?)
+                // 사용자가 "Push인 부분만 색칠"이라고 했으므로 나머지는 기본값(어두운색)으로 둠
+                // 하지만 명확한 구분을 위해 Fold 색상을 적용하는게 일반적이나, 요청대로 Push만 강조하고 싶다면 아래 줄을 수정 가능
+                if (!stratFound) {
+                     className += ' strat-fold'; // 기본 Fold (파란색) 적용
+                }
             }
 
             const cell = document.createElement('div');
@@ -299,7 +297,6 @@ function getRandomItem(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// --- 모달 로직 (선택 vs 뷰) ---
 function openModal(mode) { 
     if(handModal) {
         handModal.classList.remove('hidden');
@@ -315,11 +312,15 @@ function openModal(mode) {
             const posData = strategies[stack]?.positions[pos];
             
             modalTitle.textContent = `${stack} - ${pos} 차트`;
-            legendContainer.classList.remove('hidden'); // 보기 모드엔 범례 표시
+            
+            // PoF면 범례 숨김, 아니면 표시
+            if (currentTab === 'PoF') legendContainer.classList.add('hidden');
+            else legendContainer.classList.remove('hidden');
+
             selectRandomHandBtn.classList.add('hidden-control');
             
-            renderLegend(posData); // 범례 그리기
-            renderHandGrid('view', posData); // 차트 그리기
+            renderLegend(posData); 
+            renderHandGrid('view', posData); 
         }
     }
 }
@@ -347,6 +348,7 @@ function resetAll() {
     if(showAnswerBtn) {
         showAnswerBtn.disabled = true;
         showAnswerBtn.textContent = "정답 보기";
+        showAnswerBtn.classList.remove('btn-secondary'); 
         showAnswerBtn.style.backgroundColor = "var(--accent)";
     }
     if(handText) {
