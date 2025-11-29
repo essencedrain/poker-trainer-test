@@ -1,5 +1,4 @@
 :root {
-    /* ... 기존 변수들 ... */
     --bg-color: #121212;
     --card-bg: #1e1e1e;
     --primary: #4caf50;
@@ -8,6 +7,8 @@
     --text: #ffffff;
     --border: #333;
     --modal-bg: rgba(0, 0, 0, 0.8);
+    --tab-inactive: #333;  /* 탭 비활성 색상 */
+    --tab-active: #4caf50; /* 탭 활성 색상 */
 }
 
 /* 버튼 컬럼 배치 */
@@ -179,6 +180,41 @@ select {
     font-weight: 600;
 }
 
+
+/* 탭 메뉴 스타일 */
+.tab-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: var(--tab-inactive);
+    color: #888;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    max-width: 150px;
+}
+
+.tab-btn.active {
+    background-color: var(--tab-active);
+    color: white;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+/* 특정 컨트롤 숨기기 위한 클래스 */
+.hidden-control {
+    display: none !important;
+}
+
 /* 모바일에서 글씨 크기 조절 */
 @media (max-width: 380px) {
     .grid-cell { font-size: 0.55rem; }
@@ -239,4 +275,5 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
 
