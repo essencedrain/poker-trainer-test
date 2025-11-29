@@ -1,6 +1,6 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v2.3
+ * Version: v2.4
  */
 
 // ============================================================
@@ -67,13 +67,11 @@ function renderLegend(data) {
     legendContainer.innerHTML = '';
     legendContainer.classList.remove('hidden');
 
-    // PoF 모드: 범례 숨김
     if (currentTab === 'PoF') {
         legendContainer.classList.add('hidden'); 
         return;
     } 
     
-    // OR 모드: 범례 표시 (Fold 포함, 색상이 정의된 것만)
     if (data) {
         const keys = Object.keys(data);
         keys.forEach(key => {
@@ -93,7 +91,6 @@ function renderHandGrid(mode = 'select', data = null) {
     if (!handGrid) return;
     handGrid.innerHTML = '';
     
-    // Init allHands
     if (allHands.length === 0) {
         for (let i = 0; i < ranks.length; i++) {
             for (let j = 0; j < ranks.length; j++) {
@@ -119,19 +116,16 @@ function renderHandGrid(mode = 'select', data = null) {
             } else if (mode === 'view' && data) {
                 let stratFound = false;
                 
-                // PoF Mode Logic
                 if (currentTab === 'PoF') {
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        className += ' strat-push'; // 초록색
+                        className += ' strat-push';
                         stratFound = true;
                     }
                 } 
-                // OR Mode Logic
                 else {
                     for (const [stratName, handList] of Object.entries(data)) {
                         if (handList.includes(hand)) {
                             const cls = getStrategyClass(stratName);
-                            // 색상이 있으면 적용
                             if (cls) {
                                 className += ' ' + cls;
                                 stratFound = true;
@@ -141,8 +135,7 @@ function renderHandGrid(mode = 'select', data = null) {
                     }
                 }
                 
-                // stratFound가 false인 경우(암묵적 폴드 등)는 
-                // 아무 클래스도 추가하지 않음 -> 기본 회색 배경 유지 (색칠 안 함)
+                // 전략에 포함되지 않은 핸드(암묵적 폴드)는 아무 클래스도 주지 않음 (기본 회색)
             }
 
             const cell = document.createElement('div');
@@ -197,9 +190,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(tabOR) tabOR.addEventListener('click', () => switchTab('OR'));
     if(tabPoF) tabPoF.addEventListener('click', () => switchTab('PoF'));
 
-    window.addEventListener('click', (e) => {
-        if (e.target === handModal) closeModal();
-    });
+    // [수정] 모달 영역 어디를 눌러도 닫히도록 수정
+    if(handModal) {
+        handModal.addEventListener('click', closeModal);
+    }
 
     renderHandGrid('select'); 
     loadData();
@@ -322,7 +316,7 @@ function openModal(mode) {
         
         if (mode === 'select') {
             modalTitle.textContent = "핸드 선택";
-            legendContainer.classList.add('hidden'); // 선택 모드엔 범례 숨김
+            legendContainer.classList.add('hidden'); 
             selectRandomHandBtn.classList.remove('hidden-control');
             renderHandGrid('select'); 
         } else if (mode === 'view') {
@@ -332,7 +326,6 @@ function openModal(mode) {
             
             modalTitle.textContent = `${stack} - ${pos} 차트`;
             
-            // PoF면 범례 숨김, 아니면 표시
             if (currentTab === 'PoF') legendContainer.classList.add('hidden');
             else legendContainer.classList.remove('hidden');
 
