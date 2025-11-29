@@ -1,5 +1,5 @@
 /* Project: 9T's Holdem Tool Styles
-    Version: v2.5
+    Version: v2.6
 */
 
 :root {
@@ -50,7 +50,7 @@ h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
     font-style: italic;
 }
 
-/* 탭 메뉴 스타일 */
+/* 탭 메뉴 */
 .tab-container { display: flex; justify-content: center; gap: 10px; margin: 1rem 0; }
 .tab-btn {
     padding: 10px 15px; border: none; border-radius: 20px;
@@ -92,16 +92,7 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 
 /* 퀴즈 영역 */
 .info-badges { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-.badge { 
-    background: #333; 
-    padding: 6px 16px; 
-    border-radius: 12px; 
-    font-size: 1.05rem; 
-    font-weight: bold;
-    color: #eee; 
-    border: 1px solid #444; 
-}
-
+.badge { background: #333; padding: 6px 16px; border-radius: 12px; font-size: 1.05rem; font-weight: bold; color: #eee; border: 1px solid #444; }
 .hand-card { background: #e0e0e0; color: #121212; width: 160px; height: 100px; margin: 0 auto 1.5rem auto; display: flex; justify-content: center; align-items: center; border-radius: 12px; font-size: 3rem; font-weight: 800; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 4px solid #fff; }
 .answer-box { background: #252525; padding: 15px; border-radius: 8px; border: 1px solid #444; animation: fadeIn 0.3s ease-out; }
 .answer-box h2 { margin: 0; color: var(--text); }
@@ -126,19 +117,6 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 .cell-suited { background: #0d2b42; color: #99ccff; border: 1px solid #1a4466; }
 .cell-offsuit { background: #2a2a2a; color: #cccccc; border: 1px solid #444; }
 
-/* ▼▼▼ 전략 보기 모드용 색상 ▼▼▼ */
-.strat-push { background-color: #4caf50 !important; color: white !important; border: 1px solid #2e7d32 !important; }
-.strat-raise, .strat-jam, .strat-4b { background-color: #e53935 !important; color: white !important; border: 1px solid #b71c1c !important; }
-.strat-call { background-color: #fdd835 !important; color: #121212 !important; border: 1px solid #fbc02d !important; }
-.strat-fold { background-color: #1e88e5 !important; color: white !important; border: 1px solid #1565c0 !important; }
-.strat-limp { background-color: #4caf50 !important; color: white !important; border: 1px solid #2e7d32 !important; }
-.strat-green { background-color: #43a047 !important; color: white !important; border: 1px solid #1b5e20 !important; }
-.strat-orange { background-color: #ff9800 !important; color: white !important; border: 1px solid #e65100 !important; }
-.strat-cyan { background-color: #00acc1 !important; color: white !important; border: 1px solid #006064 !important; }
-.strat-brown { background-color: #795548 !important; color: white !important; border: 1px solid #3e2723 !important; }
-.strat-purple { background-color: #9c27b0 !important; color: white !important; border: 1px solid #4a148c !important; }
-.strat-other { background-color: #757575 !important; color: #e0e0e0 !important; border: 1px solid #424242 !important; }
-
 .grid-cell:hover { filter: brightness(1.4); }
 
 /* 범례 (Legend) */
@@ -146,47 +124,61 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 .legend-item { display: flex; align-items: center; font-size: 0.8rem; color: #ddd; margin-right: 10px; }
 .legend-color { width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; }
 
-/* ▼▼▼ 로그인 화면 스타일 (v2.5 추가) ▼▼▼ */
-.login-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: #121212;
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.login-box {
-    background-color: var(--card-bg);
-    padding: 2rem;
-    border-radius: 16px;
-    text-align: center;
-    width: 90%;
-    max-width: 350px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.9);
-    border: 1px solid var(--border);
-}
-
+/* 로그인 */
+.login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #121212; z-index: 9999; display: flex; justify-content: center; align-items: center; }
+.login-box { background-color: var(--card-bg); padding: 2rem; border-radius: 16px; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.9); border: 1px solid var(--border); }
 .login-box h2 { margin-top: 0; color: var(--primary); }
 .login-box p { color: var(--text-dim); margin-bottom: 15px; }
-
-.login-box input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: 1px solid #555;
-    background: #333;
-    color: white;
-    font-size: 1.1rem;
-    text-align: center;
-    outline: none;
-}
+.login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #555; background: #333; color: white; font-size: 1.1rem; text-align: center; outline: none; }
 .login-box input:focus { border-color: var(--primary); }
-
 .hidden-overlay { display: none !important; }
+
+/* ▼▼▼ 대폭 확장된 전략 색상 팔레트 (v2.6) ▼▼▼ */
+
+/* 1. Fold (Blue) */
+.strat-fold { background-color: #1e88e5 !important; color: white !important; border: 1px solid #1565c0 !important; }
+
+/* 2. Pure Raise / 4B Value / Jam (Red) */
+.strat-red { background-color: #d32f2f !important; color: white !important; border: 1px solid #b71c1c !important; }
+
+/* 3. 4B <50bb Value 등 (Darker Red/Crimson) */
+.strat-crimson { background-color: #c62828 !important; color: white !important; border: 1px solid #8e0000 !important; }
+
+/* 4. 4B Value (Premium) (Brown) */
+.strat-brown { background-color: #795548 !important; color: white !important; border: 1px solid #3e2723 !important; }
+
+/* 5. 4B <40bb Value (Pink/Magenta) */
+.strat-pink { background-color: #e91e63 !important; color: white !important; border: 1px solid #880e4f !important; }
+
+/* 6. Mixed Strategy / Complex Call (Grey) */
+.strat-grey { background-color: #757575 !important; color: white !important; border: 1px solid #424242 !important; }
+
+/* 7. Bluff <50bb (Purple) */
+.strat-purple { background-color: #9c27b0 !important; color: white !important; border: 1px solid #4a148c !important; }
+
+/* 8. Bluff OOP / Other Bluff (Indigo) */
+.strat-indigo { background-color: #3f51b5 !important; color: white !important; border: 1px solid #1a237e !important; }
+
+/* 9. Bluff vs BTN / Call IP (Teal) */
+.strat-teal { background-color: #009688 !important; color: white !important; border: 1px solid #004d40 !important; }
+
+/* 10. Call 50bb+ (Lime) */
+.strat-lime { background-color: #cddc39 !important; color: #121212 !important; border: 1px solid #827717 !important; }
+
+/* 11. Call 40bb+ (Cyan) */
+.strat-cyan { background-color: #00bcd4 !important; color: #121212 !important; border: 1px solid #006064 !important; }
+
+/* 12. Call IP (Orange) */
+.strat-orange { background-color: #ff9800 !important; color: #121212 !important; border: 1px solid #e65100 !important; }
+
+/* 13. Call OOP+IP / General Call (Yellow) */
+.strat-yellow { background-color: #ffeb3b !important; color: #121212 !important; border: 1px solid #fbc02d !important; }
+
+/* 14. Push / Limp (Green) */
+.strat-green { background-color: #4caf50 !important; color: white !important; border: 1px solid #1b5e20 !important; }
+
+/* 15. Fallback */
+.strat-other { background-color: #607d8b !important; color: white !important; border: 1px solid #263238 !important; }
 
 @media (max-width: 400px) { .select-group { flex: 1 1 100%; } }
 @media (max-width: 380px) { .grid-cell { font-size: 0.55rem; } }
