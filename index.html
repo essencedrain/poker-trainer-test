@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RYE 오픈레이징 트레이너</title>
+    <title>RYE 레인지 트레이너</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>♠️ RYE 오픈레인징 트레이너 ♦️</h1>
-            <h1>by 구텐</h1>
+            <h1>♠️ RYE 레인지 트레이너 ♦️</h1>
+            <h3>by 구텐</h3>
+            
+            <div class="tab-container">
+                <button id="tabOR" class="tab-btn active">Open Raising</button>
+                <button id="tabPoF" class="tab-btn">PoF 10bb</button>
+            </div>
+
             <div id="loadingArea" class="loading-area">
                 <div class="spinner"></div>
                 <p id="statusMsg">서버에서 전략 파일을 불러오는 중...</p>
@@ -21,18 +27,20 @@
 
         <main id="appArea" class="hidden">
             <div class="controls">
-                <div class="select-group">
+                <div id="stackControlGroup" class="select-group">
                     <label>스택 깊이</label>
                     <select id="stackSelect">
                         <option value="random">Random</option>
                     </select>
                 </div>
+                
                 <div class="select-group">
                     <label>포지션</label>
                     <select id="posSelect">
                         <option value="random">Random</option>
                     </select>
                 </div>
+                
                 <div class="select-group">
                     <label>핸드 선택</label>
                     <button id="handSelectBtn" class="hand-select-btn">Random</button>
@@ -72,8 +80,7 @@
                 <button id="closeModalBtn" class="close-btn">&times;</button>
             </div>
             <div class="hand-grid-container">
-                <div id="handGrid" class="hand-grid">
-                    </div>
+                <div id="handGrid" class="hand-grid"></div>
             </div>
             <button id="selectRandomHandBtn" class="btn-full-random">Random (랜덤 선택)</button>
         </div>
@@ -82,8 +89,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
