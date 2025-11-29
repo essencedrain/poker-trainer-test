@@ -1,6 +1,6 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v2.1
+ * Version: v2.3
  */
 
 // ============================================================
@@ -37,11 +37,27 @@ let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
 // --- 색상 결정 헬퍼 함수 ---
 function getStrategyClass(stratName) {
     const lower = stratName.toLowerCase();
-    if (lower.includes('push')) return 'strat-push'; // Push는 초록색
+    
+    // 1. Push
+    if (lower.includes('push')) return 'strat-push';
+    
+    // 2. Bluff
+    if (lower.includes('bluff')) return 'strat-purple';
+
+    // 3. Mixed Strategies
+    if (lower.includes('raise') && lower.includes('fold')) return 'strat-brown';
+    if (lower.includes('raise') && lower.includes('call')) return 'strat-orange';
+    if (lower.includes('limp') && lower.includes('fold')) return 'strat-cyan';
+    if (lower.includes('limp') && lower.includes('call')) return 'strat-cyan';
+
+    // 4. Pure Actions
     if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) return 'strat-raise';
+    if (lower.includes('limp')) return 'strat-green';
     if (lower.includes('call')) return 'strat-call';
+
+    // 5. Explicit Fold (명시된 폴드 전략) -> 파란색
     if (lower.includes('fold')) return 'strat-fold';
-    if (lower.includes('limp')) return 'strat-limp';
+
     return 'strat-other';
 }
 
@@ -51,21 +67,23 @@ function renderLegend(data) {
     legendContainer.innerHTML = '';
     legendContainer.classList.remove('hidden');
 
-    // [수정] PoF 모드: 범례 숨김 (요청사항 반영)
+    // PoF 모드: 범례 숨김
     if (currentTab === 'PoF') {
         legendContainer.classList.add('hidden'); 
         return;
     } 
     
-    // OR 모드: 범례 표시
+    // OR 모드: 범례 표시 (Fold 포함, 색상이 정의된 것만)
     if (data) {
         const keys = Object.keys(data);
         keys.forEach(key => {
             const cls = getStrategyClass(key);
-            const div = document.createElement('div');
-            div.className = 'legend-item';
-            div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
-            legendContainer.appendChild(div);
+            if (cls) {
+                const div = document.createElement('div');
+                div.className = 'legend-item';
+                div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
+                legendContainer.appendChild(div);
+            }
         });
     }
 }
@@ -75,6 +93,7 @@ function renderHandGrid(mode = 'select', data = null) {
     if (!handGrid) return;
     handGrid.innerHTML = '';
     
+    // Init allHands
     if (allHands.length === 0) {
         for (let i = 0; i < ranks.length; i++) {
             for (let j = 0; j < ranks.length; j++) {
@@ -103,7 +122,7 @@ function renderHandGrid(mode = 'select', data = null) {
                 // PoF Mode Logic
                 if (currentTab === 'PoF') {
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        className += ' strat-push'; // 초록색 적용
+                        className += ' strat-push'; // 초록색
                         stratFound = true;
                     }
                 } 
@@ -111,19 +130,19 @@ function renderHandGrid(mode = 'select', data = null) {
                 else {
                     for (const [stratName, handList] of Object.entries(data)) {
                         if (handList.includes(hand)) {
-                            className += ' ' + getStrategyClass(stratName);
-                            stratFound = true;
+                            const cls = getStrategyClass(stratName);
+                            // 색상이 있으면 적용
+                            if (cls) {
+                                className += ' ' + cls;
+                                stratFound = true;
+                            }
                             break;
                         }
                     }
                 }
                 
-                // PoF 모드가 아닐 때만 기본 폴드 색상 적용 (PoF는 Push 아니면 그냥 놔둠? 아니면 Fold?)
-                // 사용자가 "Push인 부분만 색칠"이라고 했으므로 나머지는 기본값(어두운색)으로 둠
-                // 하지만 명확한 구분을 위해 Fold 색상을 적용하는게 일반적이나, 요청대로 Push만 강조하고 싶다면 아래 줄을 수정 가능
-                if (!stratFound) {
-                     className += ' strat-fold'; // 기본 Fold (파란색) 적용
-                }
+                // stratFound가 false인 경우(암묵적 폴드 등)는 
+                // 아무 클래스도 추가하지 않음 -> 기본 회색 배경 유지 (색칠 안 함)
             }
 
             const cell = document.createElement('div');
