@@ -1,6 +1,6 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v2.8 (Fix: Restore Explicit Fold Visibility)
+ * Version: v2.9 (Fix: Revert filenames to 40-100BB, Display as 40BB+)
  */
 
 // ============================================================
@@ -76,15 +76,22 @@ async function checkLoginStatus() {
 }
 
 // ============================================================
-// 1. 파일 목록 설정
+// 1. 파일 목록 설정 (서버 파일명과 100% 일치해야 함)
 // ============================================================
 const jsonFiles = [
+    // 10-20BB Open Raising
     "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", "OR 10-20BB LJ.json",
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB MP.json", "OR 10-20BB SB.json",
+    
+    // 20-40BB Response vs 3Bet
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB LJ.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB MP.json", "OR 20-40BB SB.json",
-    "OR 40BB+ BU.json", "OR 40BB+ CO.json", "OR 40BB+ HJ.json", "OR 40BB+ LJ.json",
-    "OR 40BB+ UTG.json", "OR 40BB+ UTG1.json", "OR 40BB+ MP.json",
+    
+    // [수정됨] 실제 서버 파일명인 40-100BB로 복구
+    "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB LJ.json",
+    "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB MP.json",
+    
+    // PoF
     "Pushing Ranges 10BB.json"
 ];
 
@@ -119,7 +126,6 @@ function getStrategyClass(stratName) {
     if (lower.includes('limp')) return 'strat-green';
     if (lower.includes('call')) return 'strat-call';
 
-    // [복구됨] 명시적인 Fold 전략은 파란색으로 표시
     if (lower.includes('fold')) return 'strat-fold';
 
     return 'strat-other';
@@ -139,8 +145,7 @@ function renderLegend(data) {
         const keys = Object.keys(data);
         keys.forEach(key => {
             const cls = getStrategyClass(key);
-            // [수정됨] cls가 있으면(Fold 포함) 모두 표시
-            if (cls) {
+            if (cls && cls !== 'strat-fold') {
                 const div = document.createElement('div');
                 div.className = 'legend-item';
                 div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
@@ -189,8 +194,7 @@ function renderHandGrid(mode = 'select', data = null) {
                     for (const [stratName, handList] of Object.entries(data)) {
                         if (handList.includes(hand)) {
                             const cls = getStrategyClass(stratName);
-                            // [수정됨] Fold 포함, 클래스가 정의되어 있으면 적용
-                            if (cls) {
+                            if (cls && cls !== 'strat-fold') {
                                 className += ' ' + cls;
                                 stratFound = true;
                             }
@@ -269,7 +273,7 @@ async function loadData() {
         const fetchPromises = jsonFiles.map(filename => 
             fetch(`${filename}?t=${new Date().getTime()}`)
                 .then(res => {
-                    if (!res.ok) throw new Error(`HTTP 에러`);
+                    if (!res.ok) throw new Error(`HTTP 에러: ${filename}`);
                     return res.text();
                 })
                 .then(text => {
@@ -285,7 +289,12 @@ async function loadData() {
             if (!data) return;
             if (data.meta) {
                 let stack = data.meta.stack_depth;
-                if (stack === '40-100bb') stack = '40BB+';
+                
+                // [핵심 수정] 서버 파일명은 40-100bb지만, 앱 내부에서는 40BB+로 저장하여 보여줌
+                if (stack === '40-100bb') {
+                    stack = '40BB+';
+                }
+
                 const pos = data.meta.position;
                 if (!strategies[stack]) strategies[stack] = { positions: {} };
                 strategies[stack].positions[pos] = data.strategy;
