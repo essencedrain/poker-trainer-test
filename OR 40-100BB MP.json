@@ -1,7 +1,7 @@
 {
   "meta": {
     "file_name": "OR 40-100BB UTG2.json",
-    "position": "UTG2",
+    "position": "MP",
     "stack_depth": "40-100bb",
     "action_type": "Response vs 3Bet (Open Raise -> Action)",
     "source": "Raise Your Edge (RYE) - Image Grid"
@@ -46,4 +46,5 @@
       "KQo"
     ]
   }
+
 }
