@@ -116,7 +116,7 @@
           "JTs",
           "T9s",
           "AKo", "AQo", "AJo", "ATo",
-          "KQo",
+          "KQo"
         ]
       },
       "UTG1": {
@@ -129,7 +129,7 @@
           "T9s",
           "AKo", "AQo", "AJo", "ATo",
           "KQo", "KJo",
-          "QJo",
+          "QJo"
         ]
       },
       "MP": {
@@ -144,9 +144,10 @@
 		  "87s",
           "AKo", "AQo", "AJo", "ATo", "A9o",
           "KQo", "KJo", "KTo",
-          "QJo", "QTo",
+          "QJo", "QTo"
         ]
       }
     }
   }
+
 }
