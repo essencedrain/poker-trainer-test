@@ -67,4 +67,121 @@ h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
     background-color: var(--tab-inactive);
     color: #888;
     font-size: 0.9rem;
-    font-weight:
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    max-width: 200px;
+}
+
+.tab-btn.active {
+    background-color: var(--tab-active);
+    color: white;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.hidden-control { display: none !important; }
+
+/* 로딩 */
+.loading-area { color: var(--text-dim); font-size: 0.9rem; }
+.spinner {
+    width: 30px; height: 30px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s ease-in-out infinite;
+    margin: 0 auto 10px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.divider { border: 0; height: 1px; background: #333; margin: 1.5rem 0; }
+.hidden { display: none !important; }
+
+/* 컨트롤 */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem; }
+.select-group { flex: 1 1 30%; text-align: left; min-width: 120px; }
+label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; }
+select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; outline: none; }
+.hand-select-btn { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; text-align: left; cursor: pointer; }
+
+/* 버튼 */
+.buttons-col { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+.btn-reset { background-color: #424242; color: #fff; padding: 10px; border: 1px solid #555; border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
+.btn-reset:hover { background-color: #555; }
+.btn-primary { background-color: var(--primary); color: white; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-answer { background-color: var(--accent); color: #121212; width: 100%; margin-bottom: 15px; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+.btn-answer:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 퀴즈 영역 */
+.info-badges { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+.badge { 
+    background: #333; 
+    padding: 6px 16px; 
+    border-radius: 12px; 
+    font-size: 1.05rem; 
+    font-weight: bold;
+    color: #eee; 
+    border: 1px solid #444; 
+}
+
+.hand-card { background: #e0e0e0; color: #121212; width: 160px; height: 100px; margin: 0 auto 1.5rem auto; display: flex; justify-content: center; align-items: center; border-radius: 12px; font-size: 3rem; font-weight: 800; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 4px solid #fff; }
+.answer-box { background: #252525; padding: 15px; border-radius: 8px; border: 1px solid #444; animation: fadeIn 0.3s ease-out; }
+.answer-box h2 { margin: 0; color: var(--text); }
+
+/* 모달 */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(3px); }
+.modal-content { background: var(--card-bg); padding: 20px; border-radius: 16px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.modal-header h3 { margin: 0; }
+.close-btn { background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+.btn-full-random { width: 100%; padding: 12px; margin-top: 15px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+/* 모달 타이틀 스타일 (동적 변경용) */
+#modalTitle { font-size: 1.2rem; font-weight: bold; color: var(--accent); }
+
+/* 핸드 그리드 */
+.hand-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px; }
+.grid-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; font-size: 0.7rem; border-radius: 2px; cursor: pointer; }
+
+/* 기본 핸드 타입별 색상 (선택 모드용) */
+.cell-pair { background: #4a1414; color: #ff9999; border: 1px solid #662222; }
+.cell-suited { background: #0d2b42; color: #99ccff; border: 1px solid #1a4466; }
+.cell-offsuit { background: #2a2a2a; color: #cccccc; border: 1px solid #444; }
+
+/* ▼▼▼ 전략 보기 모드용 색상 (강제 적용) ▼▼▼ */
+.strat-raise, .strat-jam, .strat-push, .strat-4b {
+    background-color: #e53935 !important; /* Red */
+    color: white !important;
+    border: 1px solid #b71c1c !important;
+}
+
+.strat-call {
+    background-color: #fdd835 !important; /* Yellow */
+    color: #121212 !important;
+    border: 1px solid #fbc02d !important;
+}
+
+.strat-fold {
+    background-color: #1e88e5 !important; /* Blue */
+    color: white !important;
+    border: 1px solid #1565c0 !important;
+}
+
+.strat-limp {
+    background-color: #4caf50 !important; /* Green */
+    color: white !important;
+    border: 1px solid #2e7d32 !important;
+}
+
+.strat-other {
+    background-color: #757575 !important; /* Gray */
+    color: #e0e0e0 !important;
+    border: 1px solid #424242 !important;
+}
+
+.grid-cell:hover { filter: brightness(1.4); }
+
+@media (max-width: 400px) { .select-group { flex: 1 1 100%; } }
+@media (max-width: 380px) { .grid-cell { font-size: 0.55rem; } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
