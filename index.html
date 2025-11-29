@@ -9,13 +9,22 @@
     <meta http-equiv="Expires" content="0">
 
     <title>9T's Holdem Tool</title>
-    <link rel="stylesheet" href="style.css?v=2.4">
+    <link rel="stylesheet" href="style.css?v=2.5">
 </head>
 <body>
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <h2>🔒 접근 제한</h2>
+            <p>커뮤니티 비밀번호를 입력하세요</p>
+            <input type="password" id="passwordInput" placeholder="Password" autocomplete="off">
+            <button id="loginBtn" class="btn-primary" style="margin-top:10px;">입력</button>
+            <p id="loginMsg" style="color: #ff5252; margin-top: 10px; font-size: 0.9rem; min-height:1.2em;"></p>
+        </div>
+    </div>
     <div class="container">
         <header>
             <h1>♠️ 9T's Holdem Tool ♦️</h1>
-            <p class="author">by 구태형 [v2.4]</p>
+            <p class="author">by 구태형 [v2.5]</p>
             
             <div class="tab-container">
                 <button id="tabOR" class="tab-btn active">RYE/토너 Open Raising</button>
@@ -84,17 +93,14 @@
                 <h3>핸드 선택</h3>
                 <button id="closeModalBtn" class="close-btn">&times;</button>
             </div>
-            
             <div id="legendContainer" class="legend-container hidden"></div>
-
             <div class="hand-grid-container">
                 <div id="handGrid" class="hand-grid"></div>
             </div>
-            
             <button id="selectRandomHandBtn" class="btn-full-random">Random</button>
         </div>
     </div>
 
-    <script src="script.js?v=2.4"></script>
+    <script src="script.js?v=2.5"></script>
 </body>
 </html>
