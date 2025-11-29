@@ -2,33 +2,46 @@
 // 1. 파일 목록 설정
 // ============================================================
 const jsonFiles = [
-    "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", "OR 10-20BB LJ.json",
-    "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB MP.json", "OR 10-20BB SB.json",
-    "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB LJ.json",
-    "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB MP.json", "OR 20-40BB SB.json",
-    "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB LJ.json",
-    "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB MP.json", "Pushing Ranges 10BB.json"
+    // 10-20BB Open Raising
+    "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", 
+    "OR 10-20BB LJ.json", "OR 10-20BB MP.json", 
+    "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB SB.json",
+
+    // 20-40BB Response vs 3Bet
+    "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", 
+    "OR 20-40BB LJ.json", "OR 20-40BB MP.json",
+    "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB SB.json",
+
+    // 40-100BB Response vs 3Bet
+    "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", 
+    "OR 40-100BB LJ.json", "OR 40-100BB MP.json",
+    "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json",
+
+    // ★ PoF 파일 추가
+    "Pushing Ranges 10BB.json"
 ];
 
 let strategies = {}; 
 let currentQuiz = null;
 let selectedHandValue = 'random'; 
+let currentTab = 'OR'; // 'OR' or 'PoF'
 
-// 169 핸드 목록 생성 및 그리드 정의
+// 169 핸드 목록 생성
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-const allHands = []; // 이 배열은 createHandGrid에서 한 번만 채워집니다.
+const allHands = [];
 
-// DOM 요소 참조 (DOMContentLoaded 안에서 바인딩됨)
+// DOM 요소 참조
 let stackSelect, posSelect, runBtn, resetBtn, showAnswerBtn, handSelectBtn;
 let handModal, closeModalBtn, handGrid, selectRandomHandBtn;
 let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
-
+let tabOR, tabPoF, stackControlGroup; // 탭 관련
 
 // --- 핸드 그리드 생성 함수 ---
 function createHandGrid() {
     if (!handGrid) return;
-
-    // allHands 배열이 비어있다면 채움 (초기 로드 시 한 번만 실행)
+    handGrid.innerHTML = '';
+    
+    // allHands 배열 초기화 (최초 1회)
     if (allHands.length === 0) {
         for (let i = 0; i < ranks.length; i++) {
             for (let j = 0; j < ranks.length; j++) {
@@ -40,8 +53,6 @@ function createHandGrid() {
             }
         }
     }
-
-    handGrid.innerHTML = ''; // 그리드 초기화
     
     let handIndex = 0;
     for (let i = 0; i < ranks.length; i++) {
@@ -62,10 +73,9 @@ function createHandGrid() {
     }
 }
 
-
-// --- 페이지 로드 및 데이터 로직 ---
+// --- 페이지 로드 및 실행 ---
 window.addEventListener('DOMContentLoaded', async () => {
-    // 1. DOM 요소 바인딩 (이곳에서 모든 요소를 안전하게 찾음)
+    // 1. DOM 요소 바인딩
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
     runBtn = document.getElementById('runBtn');
@@ -75,6 +85,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     handText = document.getElementById('handText');
     displayStack = document.getElementById('displayStack');
     displayPos = document.getElementById('displayPos');
+    
     handSelectBtn = document.getElementById('handSelectBtn');
     handModal = document.getElementById('handModal');
     closeModalBtn = document.getElementById('closeModalBtn');
@@ -82,6 +93,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     selectRandomHandBtn = document.getElementById('selectRandomHandBtn');
     loadingArea = document.getElementById('loadingArea');
     answerBox = document.getElementById('answerBox');
+
+    // 탭 관련 DOM
+    tabOR = document.getElementById('tabOR');
+    tabPoF = document.getElementById('tabPoF');
+    stackControlGroup = document.getElementById('stackControlGroup');
     
     // 2. 이벤트 리스너 연결
     if(runBtn) runBtn.addEventListener('click', generateQuiz);
@@ -91,17 +107,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
     if(selectRandomHandBtn) selectRandomHandBtn.addEventListener('click', selectRandomHandOption);
     
+    if(tabOR) tabOR.addEventListener('click', () => switchTab('OR'));
+    if(tabPoF) tabPoF.addEventListener('click', () => switchTab('PoF'));
+
     window.addEventListener('click', (e) => {
         if (e.target === handModal) closeModal();
     });
 
-    // 3. 핸드 그리드 생성 (DOM 요소 바인딩 후 실행)
+    // 3. 실행
     createHandGrid(); 
-    
-    // 4. 데이터 로드 시작
     loadData();
 });
-
 
 async function loadData() {
     try {
@@ -120,60 +136,107 @@ async function loadData() {
 
         const results = await Promise.all(fetchPromises);
         
-        let loadedCount = 0;
         results.forEach(data => {
-            if (!data || !data.meta) return;
-            const stack = data.meta.stack_depth;
-            const pos = data.meta.position;
+            if (!data) return;
             
-            if (!strategies[stack]) strategies[stack] = { positions: {} };
-            strategies[stack].positions[pos] = data.strategy;
-            loadedCount++;
+            // 일반 전략 파일 처리
+            if (data.meta) {
+                const stack = data.meta.stack_depth;
+                const pos = data.meta.position;
+                if (!strategies[stack]) strategies[stack] = { positions: {} };
+                strategies[stack].positions[pos] = data.strategy;
+            } 
+            // PoF 파일 처리 (meta 없음)
+            else if (data["10BB"]) {
+                if (!strategies["10BB"]) strategies["10BB"] = data["10BB"];
+                else {
+                    Object.assign(strategies["10BB"].positions, data["10BB"].positions);
+                }
+            }
         });
 
-        if (loadedCount > 0) {
-            if(loadingArea) loadingArea.style.display = 'none';
-            if(appArea) appArea.classList.remove('hidden');
-            initApp();
-            console.log(`✅ 총 ${loadedCount}개의 파일 로드 완료`);
-        } else {
-            if(statusMsg) {
-                statusMsg.textContent = "데이터 로드 실패. 콘솔 확인.";
-                statusMsg.style.color = "#f44336";
-            }
-        }
+        if (loadingArea) loadingArea.style.display = 'none';
+        const appArea = document.getElementById('appArea');
+        if (appArea) appArea.classList.remove('hidden');
+        
+        switchTab('OR'); // 초기 탭 설정
 
     } catch (error) {
         console.error("치명적 오류:", error);
     }
 }
 
-// --- 앱 초기화 및 UI 로직 ---
+// --- 탭 전환 로직 ---
+function switchTab(tabName) {
+    currentTab = tabName;
+    
+    if (currentTab === 'OR') {
+        tabOR.classList.add('active');
+        tabPoF.classList.remove('active');
+        stackControlGroup.classList.remove('hidden-control'); // 스택 선택 보이기
+        displayStack.classList.remove('hidden-control'); 
+    } else {
+        tabPoF.classList.add('active');
+        tabOR.classList.remove('active');
+        stackControlGroup.classList.add('hidden-control'); // 스택 선택 숨기기
+        displayStack.classList.add('hidden-control'); 
+    }
 
+    resetAll(); // 탭 변경 시 리셋
+}
+
+// --- 초기화 및 옵션 설정 ---
 function initApp() {
     if (!stackSelect) return;
+    
     stackSelect.innerHTML = '<option value="random">Random</option>';
     
-    const stacks = Object.keys(strategies).sort(); 
-    stacks.forEach(stack => {
-        const option = document.createElement('option');
-        option.value = stack;
-        option.textContent = stack.toUpperCase();
-        stackSelect.appendChild(option);
+    const allStacks = Object.keys(strategies).sort(); 
+    
+    allStacks.forEach(stack => {
+        // 탭에 따라 스택 필터링
+        if (currentTab === 'PoF') {
+            if (stack === '10BB') {
+                const option = document.createElement('option');
+                option.value = stack;
+                option.textContent = stack;
+                stackSelect.appendChild(option);
+            }
+        } else { // OR 모드
+            if (stack !== '10BB') {
+                const option = document.createElement('option');
+                option.value = stack;
+                option.textContent = stack.toUpperCase();
+                stackSelect.appendChild(option);
+            }
+        }
     });
 
-    if(stackSelect) stackSelect.addEventListener('change', updatePosSelect);
+    // PoF면 강제로 10BB 선택
+    if (currentTab === 'PoF') stackSelect.value = '10BB';
+    else stackSelect.value = 'random';
+
+    // 이벤트 리스너 중복 방지를 위해 제거 후 추가 (또는 그냥 둬도 무방)
+    stackSelect.onchange = updatePosSelect;
     updatePosSelect();
 }
 
 function updatePosSelect() {
     if (!posSelect) return;
-    const selectedStack = stackSelect.value;
+    
+    let targetStack = stackSelect.value;
+    
+    // 랜덤 상태일 때, 현재 탭에서 유효한 스택 중 하나를 골라 포지션 목록을 보여줌
+    if (targetStack === 'random') {
+        const availableStacks = Object.keys(strategies).filter(s => currentTab === 'PoF' ? s === '10BB' : s !== '10BB');
+        if (availableStacks.length > 0) targetStack = availableStacks[0];
+    }
+
     posSelect.innerHTML = '<option value="random">Random</option>';
 
-    if (selectedStack !== 'random' && strategies[selectedStack]) {
+    if (strategies[targetStack]) {
         const order = ["UTG", "UTG1", "MP", "LJ", "HJ", "CO", "BTN", "BU", "SB", "BB"];
-        const positions = Object.keys(strategies[selectedStack].positions).sort((a, b) => {
+        const positions = Object.keys(strategies[targetStack].positions).sort((a, b) => {
             return order.indexOf(a) - order.indexOf(b);
         });
 
@@ -186,11 +249,7 @@ function updatePosSelect() {
     }
 }
 
-function getRandomItem(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-}
-
-// --- 핸드 그리드/모달 로직 ---
+// --- 모달 로직 ---
 function openModal() { if(handModal) handModal.classList.remove('hidden'); }
 function closeModal() { if(handModal) handModal.classList.add('hidden'); }
 
@@ -206,10 +265,9 @@ function selectRandomHandOption() {
     closeModal();
 }
 
-// --- 초기화 로직 ---
+// --- 전체 리셋 ---
 function resetAll() {
-    if(stackSelect) stackSelect.value = 'random';
-    updatePosSelect();
+    initApp(); // 스택/포지션 재설정
     selectRandomHandOption();
     
     if(answerBox) answerBox.classList.add('hidden');
@@ -222,28 +280,41 @@ function resetAll() {
         handText.textContent = "?";
         handText.style.color = "var(--text)";
     }
-    if(displayStack) displayStack.textContent = "Stack: --";
+    
+    if(displayStack) {
+        if (currentTab === 'PoF') displayStack.textContent = "Stack: 10BB";
+        else displayStack.textContent = "Stack: --";
+    }
     if(displayPos) displayPos.textContent = "Pos: --";
     
     currentQuiz = null;
 }
 
-// --- 퀴즈 생성 및 실행 ---
+// --- 유틸리티 ---
+function getRandomItem(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// --- 퀴즈 생성 ---
 function generateQuiz() {
     if (!strategies) return;
 
+    // 1. 스택
     let stack = stackSelect.value;
     if (stack === 'random') {
-        const stacks = Object.keys(strategies);
-        stack = getRandomItem(stacks);
+        const allStacks = Object.keys(strategies);
+        const validStacks = allStacks.filter(s => currentTab === 'PoF' ? s === '10BB' : s !== '10BB');
+        stack = getRandomItem(validStacks);
     }
 
+    // 2. 포지션
     let pos = posSelect.value;
     if (pos === 'random') {
         const validPositions = Object.keys(strategies[stack].positions);
         pos = getRandomItem(validPositions);
     }
 
+    // 3. 핸드
     let hand = selectedHandValue;
     if (hand === 'random') {
         hand = getRandomItem(allHands);
@@ -251,8 +322,8 @@ function generateQuiz() {
 
     currentQuiz = { stack, pos, hand };
 
-    if(displayStack) displayStack.textContent = stack;
-    if(displayPos) displayPos.textContent = pos;
+    if(displayStack) displayStack.textContent = `Stack: ${stack}`;
+    if(displayPos) displayPos.textContent = `Pos: ${pos}`;
     if(handText) {
         handText.textContent = hand;
         if (hand.includes('s')) handText.style.color = '#1e88e5'; 
@@ -268,29 +339,44 @@ function generateQuiz() {
     }
 }
 
+// --- 정답 확인 ---
 function showAnswer() {
     if (!currentQuiz) return;
     const { stack, pos, hand } = currentQuiz;
-    
     const posData = strategies[stack]?.positions[pos];
-    let resultStrategy = "FOLD (Not in range)";
+
+    let resultStrategy = "FOLD";
     let resultColor = "#888"; 
 
     if (posData) {
-        for (const [stratName, handList] of Object.entries(posData)) {
-            if (handList.includes(hand)) {
-                resultStrategy = stratName;
-                const lower = stratName.toLowerCase();
-                if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) {
-                    resultColor = '#e53935'; 
-                } else if (lower.includes('call')) {
-                    resultColor = '#fdd835'; 
-                } else if (lower.includes('fold')) {
-                    resultColor = '#1e88e5'; 
-                } else {
-                    resultColor = '#4caf50'; 
+        // PoF 모드
+        if (currentTab === 'PoF') {
+             // 데이터 구조가 { "Push": [...] } 형태임
+             if (posData["Push"] && posData["Push"].includes(hand)) {
+                 resultStrategy = "PUSH";
+                 resultColor = "#4caf50"; 
+             } else {
+                 resultStrategy = "FOLD";
+                 resultColor = "#1e88e5"; 
+             }
+        } 
+        // OR 모드
+        else {
+            for (const [stratName, handList] of Object.entries(posData)) {
+                if (handList.includes(hand)) {
+                    resultStrategy = stratName;
+                    const lower = stratName.toLowerCase();
+                    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam') || lower.includes('push')) {
+                        resultColor = '#e53935'; 
+                    } else if (lower.includes('call')) {
+                        resultColor = '#fdd835'; 
+                    } else if (lower.includes('fold')) {
+                        resultColor = '#1e88e5'; 
+                    } else {
+                        resultColor = '#4caf50'; 
+                    }
+                    break;
                 }
-                break;
             }
         }
     }
@@ -307,5 +393,3 @@ function showAnswer() {
         showAnswerBtn.style.backgroundColor = "#444";
     }
 }
-
-
