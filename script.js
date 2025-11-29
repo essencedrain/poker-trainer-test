@@ -1,10 +1,10 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v2.9 (Fix: Revert filenames to 40-100BB, Display as 40BB+)
+ * Version: v3.1 (Pure Index-based Colors)
  */
 
 // ============================================================
-// 🔐 보안 로직 (auth.json 연동)
+// 🔐 보안 로직
 // ============================================================
 const CORRECT_HASH = "b9c9506666795f502755dd346c770c53644f7773294326442646399066605652"; 
 
@@ -65,33 +65,24 @@ async function checkLoginStatus() {
             }
         };
     }
-
     if (input) {
         input.onkeypress = async (e) => {
             if (e.key === 'Enter') btn.click();
         };
     }
-    
     return false; 
 }
 
 // ============================================================
-// 1. 파일 목록 설정 (서버 파일명과 100% 일치해야 함)
+// 1. 파일 목록 설정
 // ============================================================
 const jsonFiles = [
-    // 10-20BB Open Raising
     "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", "OR 10-20BB LJ.json",
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB MP.json", "OR 10-20BB SB.json",
-    
-    // 20-40BB Response vs 3Bet
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB LJ.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB MP.json", "OR 20-40BB SB.json",
-    
-    // [수정됨] 실제 서버 파일명인 40-100BB로 복구
     "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB LJ.json",
     "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB MP.json",
-    
-    // PoF
     "Pushing Ranges 10BB.json"
 ];
 
@@ -110,27 +101,7 @@ let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
 let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
 let loginBtn, passwordInput, loginMsg;
 
-// --- 색상 결정 헬퍼 함수 ---
-function getStrategyClass(stratName) {
-    const lower = stratName.toLowerCase();
-    
-    if (lower.includes('push')) return 'strat-push';
-    if (lower.includes('bluff')) return 'strat-purple';
-
-    if (lower.includes('raise') && lower.includes('fold')) return 'strat-brown';
-    if (lower.includes('raise') && lower.includes('call')) return 'strat-orange';
-    if (lower.includes('limp') && lower.includes('fold')) return 'strat-cyan';
-    if (lower.includes('limp') && lower.includes('call')) return 'strat-cyan';
-
-    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) return 'strat-red';
-    if (lower.includes('limp')) return 'strat-green';
-    if (lower.includes('call')) return 'strat-call';
-
-    if (lower.includes('fold')) return 'strat-fold';
-
-    return 'strat-other';
-}
-
+// --- 범례 생성 함수 ---
 function renderLegend(data) {
     if (!legendContainer) return;
     legendContainer.innerHTML = '';
@@ -142,19 +113,19 @@ function renderLegend(data) {
     } 
     
     if (data) {
+        // [핵심 수정] 전략 키 순서대로 strat-0, strat-1 ... 할당
         const keys = Object.keys(data);
-        keys.forEach(key => {
-            const cls = getStrategyClass(key);
-            if (cls && cls !== 'strat-fold') {
-                const div = document.createElement('div');
-                div.className = 'legend-item';
-                div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
-                legendContainer.appendChild(div);
-            }
+        keys.forEach((key, index) => {
+            const cls = `strat-${index % 16}`; // 최대 16개 색상 순환
+            const div = document.createElement('div');
+            div.className = 'legend-item';
+            div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
+            legendContainer.appendChild(div);
         });
     }
 }
 
+// --- 핸드 그리드 렌더링 ---
 function renderHandGrid(mode = 'select', data = null) {
     if (!handGrid) return;
     handGrid.innerHTML = '';
@@ -169,6 +140,12 @@ function renderHandGrid(mode = 'select', data = null) {
                 allHands.push(hand);
             }
         }
+    }
+
+    // OR 모드일 때 키 순서를 미리 확보
+    let strategyKeys = [];
+    if (mode === 'view' && data && currentTab !== 'PoF') {
+        strategyKeys = Object.keys(data);
     }
     
     let handIndex = 0;
@@ -185,23 +162,26 @@ function renderHandGrid(mode = 'select', data = null) {
                 let stratFound = false;
                 
                 if (currentTab === 'PoF') {
+                    // PoF는 무조건 초록색 고정 (strat-push-only)
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        className += ' strat-push';
+                        className += ' strat-push-only';
                         stratFound = true;
                     }
                 } 
                 else {
-                    for (const [stratName, handList] of Object.entries(data)) {
+                    // OR 모드: 순서대로 색상 매칭
+                    for (let k = 0; k < strategyKeys.length; k++) {
+                        const key = strategyKeys[k];
+                        const handList = data[key];
+                        
                         if (handList.includes(hand)) {
-                            const cls = getStrategyClass(stratName);
-                            if (cls && cls !== 'strat-fold') {
-                                className += ' ' + cls;
-                                stratFound = true;
-                            }
+                            className += ` strat-${k % 16}`; // 순서에 맞는 클래스 부여
+                            stratFound = true;
                             break;
                         }
                     }
                 }
+                // 전략 없으면 기본색 유지
             }
 
             const cell = document.createElement('div');
@@ -289,12 +269,7 @@ async function loadData() {
             if (!data) return;
             if (data.meta) {
                 let stack = data.meta.stack_depth;
-                
-                // [핵심 수정] 서버 파일명은 40-100bb지만, 앱 내부에서는 40BB+로 저장하여 보여줌
-                if (stack === '40-100bb') {
-                    stack = '40BB+';
-                }
-
+                if (stack === '40-100bb') stack = '40BB+';
                 const pos = data.meta.position;
                 if (!strategies[stack]) strategies[stack] = { positions: {} };
                 strategies[stack].positions[pos] = data.strategy;
