@@ -1,6 +1,6 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v2.7 (Index-based Coloring)
+ * Version: v2.7 (Fix 404 Error)
  */
 
 // ============================================================
@@ -52,35 +52,46 @@ async function checkLoginStatus() {
     const btn = document.getElementById('loginBtn');
     const input = document.getElementById('passwordInput');
     
-    btn.onclick = async () => {
-        const val = input.value;
-        const valHash = await sha256(val);
-        if (valHash === correctHash) {
-            sessionStorage.setItem("isLoggedIn", "true");
-            overlay.classList.add("hidden-overlay");
-        } else {
-            loginMsg.textContent = "비밀번호가 틀렸습니다.";
-            input.value = "";
-        }
-    };
+    if (btn) {
+        btn.onclick = async () => {
+            const val = input.value;
+            const valHash = await sha256(val);
+            if (valHash === correctHash) {
+                sessionStorage.setItem("isLoggedIn", "true");
+                overlay.classList.add("hidden-overlay");
+            } else {
+                loginMsg.textContent = "비밀번호가 틀렸습니다.";
+                input.value = "";
+            }
+        };
+    }
 
-    input.onkeypress = async (e) => {
-        if (e.key === 'Enter') btn.click();
-    };
+    if (input) {
+        input.onkeypress = async (e) => {
+            if (e.key === 'Enter') btn.click();
+        };
+    }
     
     return false; 
 }
 
 // ============================================================
-// 1. 파일 목록 설정
+// 1. 파일 목록 설정 (★중요: 실제 서버 파일명과 일치해야 함)
 // ============================================================
 const jsonFiles = [
+    // 10-20BB Open Raising
     "OR 10-20BB BTN.json", "OR 10-20BB CO.json", "OR 10-20BB HJ.json", "OR 10-20BB LJ.json",
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB MP.json", "OR 10-20BB SB.json",
+    
+    // 20-40BB Response vs 3Bet
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB LJ.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB MP.json", "OR 20-40BB SB.json",
-    "OR 40BB+ BU.json", "OR 40BB+ CO.json", "OR 40BB+ HJ.json", "OR 40BB+ LJ.json",
-    "OR 40BB+ UTG.json", "OR 40BB+ UTG1.json", "OR 40BB+ MP.json",
+    
+    // [수정됨] 40-100BB Response vs 3Bet (서버 파일명인 40-100BB로 복구)
+    "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB LJ.json",
+    "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB MP.json",
+    
+    // PoF
     "Pushing Ranges 10BB.json"
 ];
 
@@ -99,7 +110,27 @@ let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
 let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
 let loginBtn, passwordInput, loginMsg;
 
-// --- 범례 생성 함수 ---
+// --- 색상 결정 헬퍼 함수 ---
+function getStrategyClass(stratName) {
+    const lower = stratName.toLowerCase();
+    
+    if (lower.includes('push')) return 'strat-push';
+    if (lower.includes('bluff')) return 'strat-purple';
+
+    if (lower.includes('raise') && lower.includes('fold')) return 'strat-brown';
+    if (lower.includes('raise') && lower.includes('call')) return 'strat-orange';
+    if (lower.includes('limp') && lower.includes('fold')) return 'strat-cyan';
+    if (lower.includes('limp') && lower.includes('call')) return 'strat-cyan';
+
+    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) return 'strat-red';
+    if (lower.includes('limp')) return 'strat-green';
+    if (lower.includes('call')) return 'strat-call';
+
+    if (lower.includes('fold')) return 'strat-fold';
+
+    return 'strat-other';
+}
+
 function renderLegend(data) {
     if (!legendContainer) return;
     legendContainer.innerHTML = '';
@@ -111,21 +142,19 @@ function renderLegend(data) {
     } 
     
     if (data) {
-        // [수정] 인덱스(순서) 기반 색상 할당
         const keys = Object.keys(data);
-        keys.forEach((key, index) => {
-            // 순서대로 strat-0, strat-1, ... 할당 (최대 12개 순환)
-            const cls = `strat-${index % 12}`;
-            
-            const div = document.createElement('div');
-            div.className = 'legend-item';
-            div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
-            legendContainer.appendChild(div);
+        keys.forEach(key => {
+            const cls = getStrategyClass(key);
+            if (cls && cls !== 'strat-fold') {
+                const div = document.createElement('div');
+                div.className = 'legend-item';
+                div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
+                legendContainer.appendChild(div);
+            }
         });
     }
 }
 
-// --- 핸드 그리드 렌더링 ---
 function renderHandGrid(mode = 'select', data = null) {
     if (!handGrid) return;
     handGrid.innerHTML = '';
@@ -142,9 +171,6 @@ function renderHandGrid(mode = 'select', data = null) {
         }
     }
     
-    // [수정] 데이터의 키(전략명) 목록을 미리 가져옴 (순서 보장을 위해)
-    const strategyKeys = data ? Object.keys(data) : [];
-
     let handIndex = 0;
     for (let i = 0; i < ranks.length; i++) {
         for (let j = 0; j < ranks.length; j++) {
@@ -160,29 +186,22 @@ function renderHandGrid(mode = 'select', data = null) {
                 
                 if (currentTab === 'PoF') {
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        // PoF 모드는 그냥 1번 색상(Green)이나 0번(Red) 등을 고정 사용하거나, 
-                        // 기존처럼 별도 클래스 strat-push 사용 (style.css에 strat-push는 없앴으니 strat-1(Green) 사용 권장)
-                        // 여기서는 strat-1 (Green) 사용
-                        className += ' strat-1'; 
+                        className += ' strat-push';
                         stratFound = true;
                     }
                 } 
                 else {
-                    // OR 모드: 순서대로 매칭
-                    for (let k = 0; k < strategyKeys.length; k++) {
-                        const key = strategyKeys[k];
-                        const handList = data[key];
-                        
+                    for (const [stratName, handList] of Object.entries(data)) {
                         if (handList.includes(hand)) {
-                            // 인덱스 기반 클래스 추가
-                            className += ` strat-${k % 12}`;
-                            stratFound = true;
+                            const cls = getStrategyClass(stratName);
+                            if (cls && cls !== 'strat-fold') {
+                                className += ' ' + cls;
+                                stratFound = true;
+                            }
                             break;
                         }
                     }
                 }
-                
-                // 전략에 없으면(stratFound = false) 아무 클래스도 안 붙음 -> 투명/기본색
             }
 
             const cell = document.createElement('div');
@@ -198,7 +217,7 @@ function renderHandGrid(mode = 'select', data = null) {
     }
 }
 
-// --- 메인 실행 (나머지 동일) ---
+// --- 메인 실행 ---
 window.addEventListener('DOMContentLoaded', async () => {
     await checkLoginStatus();
 
@@ -228,16 +247,22 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     if(runBtn) runBtn.addEventListener('click', generateQuiz);
     if(resetBtn) resetBtn.addEventListener('click', resetAll);
+    
     if(showAnswerBtn) showAnswerBtn.addEventListener('click', handleAnswerBtnClick);
+    
     if(handSelectBtn) handSelectBtn.addEventListener('click', () => openModal('select'));
+    
     if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
     if(selectRandomHandBtn) selectRandomHandBtn.addEventListener('click', selectRandomHandOption);
+    
     if(tabOR) tabOR.addEventListener('click', () => switchTab('OR'));
     if(tabPoF) tabPoF.addEventListener('click', () => switchTab('PoF'));
 
-    window.addEventListener('click', (e) => {
-        if (e.target === handModal) closeModal();
-    });
+    if(handModal) {
+        window.addEventListener('click', (e) => {
+            if (e.target === handModal) closeModal();
+        });
+    }
 
     renderHandGrid('select'); 
     loadData();
@@ -248,7 +273,7 @@ async function loadData() {
         const fetchPromises = jsonFiles.map(filename => 
             fetch(`${filename}?t=${new Date().getTime()}`)
                 .then(res => {
-                    if (!res.ok) throw new Error(`HTTP 에러`);
+                    if (!res.ok) throw new Error(`HTTP 에러: ${filename}`);
                     return res.text();
                 })
                 .then(text => {
@@ -264,7 +289,9 @@ async function loadData() {
             if (!data) return;
             if (data.meta) {
                 let stack = data.meta.stack_depth;
+                // [핵심 수정] 40-100bb를 불러왔지만, 내부적으로는 40BB+라는 이름으로 저장
                 if (stack === '40-100bb') stack = '40BB+';
+                
                 const pos = data.meta.position;
                 if (!strategies[stack]) strategies[stack] = { positions: {} };
                 strategies[stack].positions[pos] = data.strategy;
@@ -494,8 +521,6 @@ function showAnswerText() {
             for (const [stratName, handList] of Object.entries(posData)) {
                 if (handList.includes(hand)) {
                     resultStrategy = stratName;
-                    
-                    // 정답 텍스트 색상 결정 (기존 로직 유지)
                     const lower = stratName.toLowerCase();
                     if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam') || lower.includes('push')) {
                         resultColor = '#e53935'; 
