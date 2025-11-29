@@ -1,10 +1,10 @@
 /**
- * Project: RYE Range Trainer Script
- * Version: v1.3
+ * Project: 9T's Holdem Tool Script
+ * Version: v1.6
  */
 
 // ============================================================
-// 1. 파일 목록 설정
+// 1. 파일 목록 설정 (서버에 있는 실제 파일명 사용!)
 // ============================================================
 const jsonFiles = [
     // 10-20BB Open Raising
@@ -15,7 +15,7 @@ const jsonFiles = [
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB LJ.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB MP.json", "OR 20-40BB SB.json",
 
-    // 40-100BB Response vs 3Bet
+    // 40-100BB Response vs 3Bet (서버 파일명 그대로 사용)
     "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB LJ.json",
     "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB MP.json",
 
@@ -138,7 +138,13 @@ async function loadData() {
             if (!data) return;
             
             if (data.meta) {
-                const stack = data.meta.stack_depth;
+                let stack = data.meta.stack_depth;
+                
+                // [수정] 여기서 이름을 강제로 변경합니다!
+                if (stack === '40-100bb') {
+                    stack = '40BB+';
+                }
+
                 const pos = data.meta.position;
                 if (!strategies[stack]) strategies[stack] = { positions: {} };
                 strategies[stack].positions[pos] = data.strategy;
@@ -183,7 +189,6 @@ function switchTab(tabName) {
 function initApp() {
     if (!stackSelect) return;
     
-    // [수정] 텍스트를 Random으로 변경
     stackSelect.innerHTML = '<option value="random">Random</option>';
     
     const allStacks = Object.keys(strategies).sort(); 
@@ -223,7 +228,6 @@ function updatePosSelect() {
         if (availableStacks.length > 0) targetStack = availableStacks[0];
     }
 
-    // [수정] 텍스트를 Random으로 변경
     posSelect.innerHTML = '<option value="random">Random</option>';
 
     if (strategies[targetStack]) {
@@ -256,7 +260,6 @@ function selectHand(hand) {
 
 function selectRandomHandOption() {
     selectedHandValue = 'random';
-    // [수정] 텍스트를 Random으로 변경
     if(handSelectBtn) handSelectBtn.textContent = 'Random';
     closeModal();
 }
