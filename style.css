@@ -1,5 +1,5 @@
 /* Project: 9T's Holdem Tool Styles
-    Version: v1.5
+    Version: v1.7
 */
 
 :root {
@@ -70,7 +70,6 @@ h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
     cursor: pointer;
     transition: all 0.2s;
     flex: 1;
-    /* 텍스트가 길어져서 너비 제한을 조금 품 */
     max-width: 200px;
 }
 
@@ -117,9 +116,9 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 .info-badges { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
 .badge { 
     background: #333; 
-    padding: 6px 16px; /* 패딩 약간 증가 */
+    padding: 6px 16px; 
     border-radius: 12px; 
-    font-size: 1.05rem; /* [수정됨] 0.85rem -> 1.05rem (약 20% 증가) */
+    font-size: 1.05rem; 
     font-weight: bold;
     color: #eee; 
     border: 1px solid #444; 
