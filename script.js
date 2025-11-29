@@ -1,7 +1,6 @@
 /**
  * Project: RYE Range Trainer Script
- * Version: v1.2
- * Description: 탭 기능, 핸드 그리드 선택, JSON 자동 로딩 포함
+ * Version: v1.3
  */
 
 // ============================================================
@@ -27,7 +26,7 @@ const jsonFiles = [
 let strategies = {}; 
 let currentQuiz = null;
 let selectedHandValue = 'random'; 
-let currentTab = 'OR'; // 'OR' or 'PoF'
+let currentTab = 'OR';
 
 // 169 핸드 목록
 const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
@@ -44,7 +43,6 @@ function createHandGrid() {
     if (!handGrid) return;
     handGrid.innerHTML = '';
     
-    // allHands 채우기 (최초 1회)
     if (allHands.length === 0) {
         for (let i = 0; i < ranks.length; i++) {
             for (let j = 0; j < ranks.length; j++) {
@@ -78,7 +76,6 @@ function createHandGrid() {
 
 // --- 메인 실행 ---
 window.addEventListener('DOMContentLoaded', async () => {
-    // 1. DOM 요소 바인딩
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
     runBtn = document.getElementById('runBtn');
@@ -101,7 +98,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     tabPoF = document.getElementById('tabPoF');
     stackControlGroup = document.getElementById('stackControlGroup');
 
-    // 2. 이벤트 리스너
     if(runBtn) runBtn.addEventListener('click', generateQuiz);
     if(resetBtn) resetBtn.addEventListener('click', resetAll);
     if(showAnswerBtn) showAnswerBtn.addEventListener('click', showAnswer);
@@ -116,16 +112,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (e.target === handModal) closeModal();
     });
 
-    // 3. 실행
     createHandGrid(); 
     loadData();
 });
 
 async function loadData() {
-     try {
-        // ▼ 여기를 수정했습니다 (뒤에 타임스탬프를 붙여서 매번 새 파일로 인식하게 함)
+    try {
         const fetchPromises = jsonFiles.map(filename => 
-            // 파일명 뒤에 '?t=' + 현재시간을 붙여서 브라우저가 캐시를 못 쓰게 만듦
+            // 캐시 방지를 위해 타임스탬프 추가
             fetch(`${filename}?t=${new Date().getTime()}`)
                 .then(res => {
                     if (!res.ok) throw new Error(`HTTP 에러`);
@@ -189,7 +183,8 @@ function switchTab(tabName) {
 function initApp() {
     if (!stackSelect) return;
     
-    stackSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
+    // [수정] 텍스트를 Random으로 변경
+    stackSelect.innerHTML = '<option value="random">Random</option>';
     
     const allStacks = Object.keys(strategies).sort(); 
     
@@ -228,7 +223,8 @@ function updatePosSelect() {
         if (availableStacks.length > 0) targetStack = availableStacks[0];
     }
 
-    posSelect.innerHTML = '<option value="random">Random (랜덤)</option>';
+    // [수정] 텍스트를 Random으로 변경
+    posSelect.innerHTML = '<option value="random">Random</option>';
 
     if (strategies[targetStack]) {
         const order = ["UTG", "UTG1", "MP", "LJ", "HJ", "CO", "BTN", "BU", "SB", "BB"];
@@ -260,7 +256,8 @@ function selectHand(hand) {
 
 function selectRandomHandOption() {
     selectedHandValue = 'random';
-    if(handSelectBtn) handSelectBtn.textContent = 'Random (랜덤)';
+    // [수정] 텍스트를 Random으로 변경
+    if(handSelectBtn) handSelectBtn.textContent = 'Random';
     closeModal();
 }
 
@@ -378,4 +375,3 @@ function showAnswer() {
         showAnswerBtn.style.backgroundColor = "#444";
     }
 }
-
