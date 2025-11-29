@@ -1,5 +1,5 @@
 /* Project: 9T's Holdem Tool Styles
-    Version: v2.3
+    Version: v2.4
 */
 
 :root {
@@ -105,19 +105,11 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 .close-btn { background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
 .btn-full-random { width: 100%; padding: 12px; margin-top: 15px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-/* 모달 타이틀 스타일 */
-#modalTitle { font-size: 1.2rem; font-weight: bold; color: var(--accent); }
-
 /* 핸드 그리드 */
 .hand-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px; }
-.grid-cell { 
-    aspect-ratio: 1; display: flex; justify-content: center; align-items: center; 
-    font-size: 0.7rem; border-radius: 2px; cursor: pointer; 
-    background-color: #2a2a2a; color: #666; /* 기본 비활성 색상 */
-    border: 1px solid #333;
-}
+.grid-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; font-size: 0.7rem; border-radius: 2px; cursor: pointer; }
 
-/* 선택 모드용 기본 핸드 타입별 색상 */
+/* 기본 핸드 타입별 색상 (선택 모드) */
 .cell-pair { background: #4a1414; color: #ff9999; border: 1px solid #662222; }
 .cell-suited { background: #0d2b42; color: #99ccff; border: 1px solid #1a4466; }
 .cell-offsuit { background: #2a2a2a; color: #cccccc; border: 1px solid #444; }
@@ -126,14 +118,14 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 .strat-push { background-color: #4caf50 !important; color: white !important; border: 1px solid #2e7d32 !important; }
 .strat-raise, .strat-jam, .strat-4b { background-color: #e53935 !important; color: white !important; border: 1px solid #b71c1c !important; }
 .strat-call { background-color: #fdd835 !important; color: #121212 !important; border: 1px solid #fbc02d !important; }
+.strat-fold { background-color: #1e88e5 !important; color: white !important; border: 1px solid #1565c0 !important; }
+.strat-limp { background-color: #4caf50 !important; color: white !important; border: 1px solid #2e7d32 !important; }
 .strat-green { background-color: #43a047 !important; color: white !important; border: 1px solid #1b5e20 !important; }
 .strat-orange { background-color: #ff9800 !important; color: white !important; border: 1px solid #e65100 !important; }
 .strat-cyan { background-color: #00acc1 !important; color: white !important; border: 1px solid #006064 !important; }
 .strat-brown { background-color: #795548 !important; color: white !important; border: 1px solid #3e2723 !important; }
 .strat-purple { background-color: #9c27b0 !important; color: white !important; border: 1px solid #4a148c !important; }
-
-/* Fold (명시된 전략) -> 파란색 */
-.strat-fold { background-color: #1e88e5 !important; color: white !important; border: 1px solid #1565c0 !important; }
+.strat-other { background-color: #757575 !important; color: #e0e0e0 !important; border: 1px solid #424242 !important; }
 
 .grid-cell:hover { filter: brightness(1.4); }
 
