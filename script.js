@@ -1,77 +1,7 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v3.1 (Pure Index-based Colors)
+ * Version: v4.0 (No Login)
  */
-
-// ============================================================
-// 🔐 보안 로직
-// ============================================================
-const CORRECT_HASH = "b9c9506666795f502755dd346c770c53644f7773294326442646399066605652"; 
-
-async function sha256(message) {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function checkLoginStatus() {
-    const overlay = document.getElementById("loginOverlay");
-    const loginMsg = document.getElementById("loginMsg");
-    
-    if (sessionStorage.getItem("isLoggedIn") === "true") {
-        overlay.classList.add("hidden-overlay");
-        return true;
-    }
-
-    let correctHash = "";
-    try {
-        const res = await fetch(`auth.json?t=${new Date().getTime()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error("Auth file missing");
-        const data = await res.json();
-        correctHash = data.hash;
-    } catch (e) {
-        correctHash = CORRECT_HASH; 
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const magicCode = urlParams.get('code');
-
-    if (magicCode) {
-        const inputHash = await sha256(magicCode);
-        if (inputHash === correctHash) {
-            sessionStorage.setItem("isLoggedIn", "true");
-            overlay.classList.add("hidden-overlay");
-            window.history.replaceState({}, document.title, window.location.pathname);
-            return true;
-        } else {
-            loginMsg.textContent = "링크가 만료되었거나 비밀번호가 틀렸습니다.";
-        }
-    }
-    
-    const btn = document.getElementById('loginBtn');
-    const input = document.getElementById('passwordInput');
-    
-    if (btn) {
-        btn.onclick = async () => {
-            const val = input.value;
-            const valHash = await sha256(val);
-            if (valHash === correctHash) {
-                sessionStorage.setItem("isLoggedIn", "true");
-                overlay.classList.add("hidden-overlay");
-            } else {
-                loginMsg.textContent = "비밀번호가 틀렸습니다.";
-                input.value = "";
-            }
-        };
-    }
-    if (input) {
-        input.onkeypress = async (e) => {
-            if (e.key === 'Enter') btn.click();
-        };
-    }
-    return false; 
-}
 
 // ============================================================
 // 1. 파일 목록 설정
@@ -81,8 +11,8 @@ const jsonFiles = [
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB MP.json", "OR 10-20BB SB.json",
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB LJ.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB MP.json", "OR 20-40BB SB.json",
-    "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB LJ.json",
-    "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB MP.json",
+    "OR 40BB+ BU.json", "OR 40BB+ CO.json", "OR 40BB+ HJ.json", "OR 40BB+ LJ.json",
+    "OR 40BB+ UTG.json", "OR 40BB+ UTG1.json", "OR 40BB+ MP.json",
     "Pushing Ranges 10BB.json"
 ];
 
@@ -99,9 +29,28 @@ let stackSelect, posSelect, runBtn, resetBtn, showAnswerBtn, handSelectBtn;
 let handModal, closeModalBtn, handGrid, selectRandomHandBtn;
 let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
 let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
-let loginBtn, passwordInput, loginMsg;
 
-// --- 범례 생성 함수 ---
+// --- 색상 결정 헬퍼 함수 ---
+function getStrategyClass(stratName) {
+    const lower = stratName.toLowerCase();
+    
+    if (lower.includes('push')) return 'strat-push';
+    if (lower.includes('bluff')) return 'strat-purple';
+
+    if (lower.includes('raise') && lower.includes('fold')) return 'strat-brown';
+    if (lower.includes('raise') && lower.includes('call')) return 'strat-orange';
+    if (lower.includes('limp') && lower.includes('fold')) return 'strat-cyan';
+    if (lower.includes('limp') && lower.includes('call')) return 'strat-cyan';
+
+    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) return 'strat-red';
+    if (lower.includes('limp')) return 'strat-green';
+    if (lower.includes('call')) return 'strat-call';
+
+    if (lower.includes('fold')) return 'strat-fold';
+
+    return 'strat-other';
+}
+
 function renderLegend(data) {
     if (!legendContainer) return;
     legendContainer.innerHTML = '';
@@ -113,19 +62,19 @@ function renderLegend(data) {
     } 
     
     if (data) {
-        // [핵심 수정] 전략 키 순서대로 strat-0, strat-1 ... 할당
         const keys = Object.keys(data);
-        keys.forEach((key, index) => {
-            const cls = `strat-${index % 16}`; // 최대 16개 색상 순환
-            const div = document.createElement('div');
-            div.className = 'legend-item';
-            div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
-            legendContainer.appendChild(div);
+        keys.forEach(key => {
+            const cls = getStrategyClass(key);
+            if (cls && cls !== 'strat-fold') {
+                const div = document.createElement('div');
+                div.className = 'legend-item';
+                div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
+                legendContainer.appendChild(div);
+            }
         });
     }
 }
 
-// --- 핸드 그리드 렌더링 ---
 function renderHandGrid(mode = 'select', data = null) {
     if (!handGrid) return;
     handGrid.innerHTML = '';
@@ -140,12 +89,6 @@ function renderHandGrid(mode = 'select', data = null) {
                 allHands.push(hand);
             }
         }
-    }
-
-    // OR 모드일 때 키 순서를 미리 확보
-    let strategyKeys = [];
-    if (mode === 'view' && data && currentTab !== 'PoF') {
-        strategyKeys = Object.keys(data);
     }
     
     let handIndex = 0;
@@ -162,26 +105,23 @@ function renderHandGrid(mode = 'select', data = null) {
                 let stratFound = false;
                 
                 if (currentTab === 'PoF') {
-                    // PoF는 무조건 초록색 고정 (strat-push-only)
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        className += ' strat-push-only';
+                        className += ' strat-push';
                         stratFound = true;
                     }
                 } 
                 else {
-                    // OR 모드: 순서대로 색상 매칭
-                    for (let k = 0; k < strategyKeys.length; k++) {
-                        const key = strategyKeys[k];
-                        const handList = data[key];
-                        
+                    for (const [stratName, handList] of Object.entries(data)) {
                         if (handList.includes(hand)) {
-                            className += ` strat-${k % 16}`; // 순서에 맞는 클래스 부여
-                            stratFound = true;
+                            const cls = getStrategyClass(stratName);
+                            if (cls && cls !== 'strat-fold') {
+                                className += ' ' + cls;
+                                stratFound = true;
+                            }
                             break;
                         }
                     }
                 }
-                // 전략 없으면 기본색 유지
             }
 
             const cell = document.createElement('div');
@@ -199,7 +139,7 @@ function renderHandGrid(mode = 'select', data = null) {
 
 // --- 메인 실행 ---
 window.addEventListener('DOMContentLoaded', async () => {
-    await checkLoginStatus();
+    // 로그인 체크 로직 제거됨
 
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
@@ -253,7 +193,7 @@ async function loadData() {
         const fetchPromises = jsonFiles.map(filename => 
             fetch(`${filename}?t=${new Date().getTime()}`)
                 .then(res => {
-                    if (!res.ok) throw new Error(`HTTP 에러: ${filename}`);
+                    if (!res.ok) throw new Error(`HTTP 에러`);
                     return res.text();
                 })
                 .then(text => {
