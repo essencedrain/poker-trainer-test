@@ -1,5 +1,5 @@
 /* Project: 9T's Holdem Tool Styles
-    Version: v3.1 (Index Colors)
+    Version: v4.0 (No Login)
 */
 
 :root {
@@ -52,13 +52,23 @@ h1 { margin: 0 0 0.5rem 0; font-size: 1.5rem; }
 
 /* 탭 메뉴 */
 .tab-container { display: flex; justify-content: center; gap: 10px; margin: 1rem 0; }
-.tab-btn { padding: 10px 15px; border: none; border-radius: 20px; background-color: var(--tab-inactive); color: #888; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.2s; flex: 1; max-width: 200px; }
+.tab-btn {
+    padding: 10px 15px; border: none; border-radius: 20px;
+    background-color: var(--tab-inactive); color: #888;
+    font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.2s;
+    flex: 1; max-width: 200px;
+}
 .tab-btn.active { background-color: var(--tab-active); color: white; box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); }
+
 .hidden-control { display: none !important; }
 
 /* 로딩 */
 .loading-area { color: var(--text-dim); font-size: 0.9rem; }
-.spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: var(--primary); animation: spin 1s ease-in-out infinite; margin: 0 auto 10px auto; }
+.spinner {
+    width: 30px; height: 30px;
+    border: 3px solid rgba(255,255,255,0.3); border-radius: 50%;
+    border-top-color: var(--primary); animation: spin 1s ease-in-out infinite; margin: 0 auto 10px auto;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .divider { border: 0; height: 1px; background: #333; margin: 1.5rem 0; }
@@ -94,48 +104,36 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 .modal-header h3 { margin: 0; }
 .close-btn { background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
 .btn-full-random { width: 100%; padding: 12px; margin-top: 15px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+/* 모달 타이틀 스타일 */
 #modalTitle { font-size: 1.2rem; font-weight: bold; color: var(--accent); }
 
 /* 핸드 그리드 */
 .hand-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px; }
 .grid-cell { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; font-size: 0.7rem; border-radius: 2px; cursor: pointer; }
 
-/* 선택 모드 기본 색상 */
+/* 기본 핸드 타입별 색상 (선택 모드) */
 .cell-pair { background: #4a1414; color: #ff9999; border: 1px solid #662222; }
 .cell-suited { background: #0d2b42; color: #99ccff; border: 1px solid #1a4466; }
 .cell-offsuit { background: #2a2a2a; color: #cccccc; border: 1px solid #444; }
 
-/* ▼▼▼ 순서 기반 전략 색상 (strat-0 ~ strat-15) ▼▼▼ */
-/* 빨강 계열 */
-.strat-0 { background-color: #d32f2f !important; color: white !important; border: 1px solid #b71c1c !important; }
-.strat-1 { background-color: #e57373 !important; color: black !important; border: 1px solid #c62828 !important; }
-
-/* 노랑/오렌지 계열 */
-.strat-2 { background-color: #fbc02d !important; color: black !important; border: 1px solid #f9a825 !important; }
-.strat-3 { background-color: #ff9800 !important; color: black !important; border: 1px solid #e65100 !important; }
-
-/* 파랑/하늘 계열 */
-.strat-4 { background-color: #1976d2 !important; color: white !important; border: 1px solid #0d47a1 !important; }
-.strat-5 { background-color: #00bcd4 !important; color: black !important; border: 1px solid #006064 !important; }
-
-/* 초록/라임 계열 */
-.strat-6 { background-color: #388e3c !important; color: white !important; border: 1px solid #1b5e20 !important; }
-.strat-7 { background-color: #cddc39 !important; color: black !important; border: 1px solid #827717 !important; }
-
-/* 보라/핑크 계열 */
-.strat-8 { background-color: #7b1fa2 !important; color: white !important; border: 1px solid #4a148c !important; }
-.strat-9 { background-color: #e91e63 !important; color: white !important; border: 1px solid #880e4f !important; }
-
-/* 기타 계열 (갈색, 회색, 남색, 청록) */
-.strat-10 { background-color: #795548 !important; color: white !important; border: 1px solid #3e2723 !important; }
-.strat-11 { background-color: #607d8b !important; color: white !important; border: 1px solid #263238 !important; }
-.strat-12 { background-color: #303f9f !important; color: white !important; border: 1px solid #1a237e !important; }
-.strat-13 { background-color: #00695c !important; color: white !important; border: 1px solid #004d40 !important; }
-.strat-14 { background-color: #424242 !important; color: white !important; border: 1px solid #212121 !important; }
-.strat-15 { background-color: #000000 !important; color: white !important; border: 1px solid #333 !important; }
-
-/* PoF 전용 (Push는 초록색) */
-.strat-push-only { background-color: #4caf50 !important; color: white !important; border: 1px solid #2e7d32 !important; }
+/* ▼▼▼ 전략 색상 팔레트 ▼▼▼ */
+.strat-fold { background-color: #1e88e5 !important; color: white !important; border: 1px solid #1565c0 !important; }
+.strat-red { background-color: #d32f2f !important; color: white !important; border: 1px solid #b71c1c !important; }
+.strat-crimson { background-color: #b71c1c !important; color: white !important; border: 1px solid #8e0000 !important; }
+.strat-pink { background-color: #e91e63 !important; color: white !important; border: 1px solid #880e4f !important; }
+.strat-brown { background-color: #795548 !important; color: white !important; border: 1px solid #3e2723 !important; }
+.strat-yellow { background-color: #fdd835 !important; color: #121212 !important; border: 1px solid #fbc02d !important; }
+.strat-orange { background-color: #fb8c00 !important; color: white !important; border: 1px solid #e65100 !important; }
+.strat-lime { background-color: #cddc39 !important; color: #121212 !important; border: 1px solid #827717 !important; }
+.strat-cyan { background-color: #00bcd4 !important; color: #121212 !important; border: 1px solid #006064 !important; }
+.strat-purple { background-color: #9c27b0 !important; color: white !important; border: 1px solid #4a148c !important; }
+.strat-indigo { background-color: #3f51b5 !important; color: white !important; border: 1px solid #1a237e !important; }
+.strat-teal { background-color: #009688 !important; color: white !important; border: 1px solid #004d40 !important; }
+.strat-grey { background-color: #757575 !important; color: white !important; border: 1px solid #424242 !important; }
+.strat-push { background-color: #4caf50 !important; color: white !important; border: 1px solid #2e7d32 !important; }
+.strat-green { background-color: #43a047 !important; color: white !important; border: 1px solid #1b5e20 !important; }
+.strat-other { background-color: #607d8b !important; color: white !important; border: 1px solid #263238 !important; }
 
 .grid-cell:hover { filter: brightness(1.4); }
 
@@ -143,12 +141,6 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 .legend-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; padding: 10px; background: #252525; border-radius: 8px; }
 .legend-item { display: flex; align-items: center; font-size: 0.8rem; color: #ddd; margin-right: 10px; }
 .legend-color { width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; border: 1px solid #fff; }
-
-/* 로그인 */
-.login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #121212; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-.login-box { background-color: var(--card-bg); padding: 2rem; border-radius: 16px; text-align: center; width: 90%; max-width: 350px; }
-.login-box input { width: 100%; padding: 12px; margin-bottom: 10px; background: #333; color: white; border: 1px solid #555; border-radius: 8px; }
-.hidden-overlay { display: none !important; }
 
 @media (max-width: 400px) { .select-group { flex: 1 1 100%; } }
 @media (max-width: 380px) { .grid-cell { font-size: 0.55rem; } }
