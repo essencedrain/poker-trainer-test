@@ -1,5 +1,5 @@
 /* Project: 9T's Holdem Tool Styles
-    Version: v4.3 (Login Styles Removed)
+    Version: v4.4 (Final Stable Index Colors)
 */
 
 :root {
@@ -115,23 +115,26 @@ select { width: 100%; padding: 12px; background: #2c2c2c; color: white; border: 
 .cell-suited { background: #0d2b42; color: #99ccff; border: 1px solid #1a4466; }
 .cell-offsuit { background: #2a2a2a; color: #cccccc; border: 1px solid #444; }
 
-/* ▼▼▼ 전략 기반 색상 팔레트 (원래대로 복구) ▼▼▼ */
-.strat-fold { background-color: #1976d2 !important; color: white !important; border: 1px solid #0d47a1 !important; }
-.strat-red { background-color: #d32f2f !important; color: white !important; border: 1px solid #b71c1c !important; }
-.strat-crimson { background-color: #b71c1c !important; color: white !important; border: 1px solid #8e0000 !important; }
-.strat-pink { background-color: #e91e63 !important; color: white !important; border: 1px solid #880e4f !important; }
-.strat-brown { background-color: #795548 !important; color: white !important; border: 1px solid #3e2723 !important; }
-.strat-yellow { background-color: #fbc02d !important; color: #121212 !important; border: 1px solid #f9a825 !important; }
-.strat-orange { background-color: #fb8c00 !important; color: white !important; border: 1px solid #e65100 !important; }
-.strat-lime { background-color: #cddc39 !important; color: #121212 !important; border: 1px solid #827717 !important; }
-.strat-cyan { background-color: #00bcd4 !important; color: #121212 !important; border: 1px solid #006064 !important; }
-.strat-purple { background-color: #9c27b0 !important; color: white !important; border: 1px solid #4a148c !important; }
-.strat-indigo { background-color: #3f51b5 !important; color: white !important; border: 1px solid #1a237e !important; }
-.strat-teal { background-color: #009688 !important; color: white !important; border: 1px solid #004d40 !important; }
-.strat-grey { background-color: #757575 !important; color: white !important; border: 1px solid #424242 !important; }
-.strat-push { background-color: #4caf50 !important; color: white !important; border: 1px solid #2e7d32 !important; }
-.strat-green { background-color: #43a047 !important; color: white !important; border: 1px solid #1b5e20 !important; }
-.strat-other { background-color: #607d8b !important; color: white !important; border: 1px solid #263238 !important; }
+/* ▼▼▼ 순서 기반 전략 색상 (v4.3 복구) ▼▼▼ */
+.strat-0 { background-color: #d32f2f !important; color: white !important; border: 1px solid #b71c1c !important; }
+.strat-1 { background-color: #e57373 !important; color: black !important; border: 1px solid #c62828 !important; }
+.strat-2 { background-color: #fbc02d !important; color: black !important; border: 1px solid #f9a825 !important; }
+.strat-3 { background-color: #ff9800 !important; color: black !important; border: 1px solid #e65100 !important; }
+.strat-4 { background-color: #1976d2 !important; color: white !important; border: 1px solid #0d47a1 !important; }
+.strat-5 { background-color: #00bcd4 !important; color: black !important; border: 1px solid #006064 !important; }
+.strat-6 { background-color: #388e3c !important; color: white !important; border: 1px solid #1b5e20 !important; }
+.strat-7 { background-color: #cddc39 !important; color: black !important; border: 1px solid #827717 !important; }
+.strat-8 { background-color: #7b1fa2 !important; color: white !important; border: 1px solid #4a148c !important; }
+.strat-9 { background-color: #e91e63 !important; color: white !important; border: 1px solid #880e4f !important; }
+.strat-10 { background-color: #795548 !important; color: white !important; border: 1px solid #3e2723 !important; }
+.strat-11 { background-color: #607d8b !important; color: white !important; border: 1px solid #263238 !important; }
+.strat-12 { background-color: #303f9f !important; color: white !important; border: 1px solid #1a237e !important; }
+.strat-13 { background-color: #00695c !important; color: white !important; border: 1px solid #004d40 !important; }
+.strat-14 { background-color: #424242 !important; color: white !important; border: 1px solid #212121 !important; }
+.strat-15 { background-color: #000000 !important; color: white !important; border: 1px solid #333 !important; }
+
+/* PoF 전용 (Push는 초록색) */
+.strat-push-only { background-color: #4caf50 !important; color: white !important; border: 1px solid #2e7d32 !important; }
 
 .grid-cell:hover { filter: brightness(1.4); }
 
