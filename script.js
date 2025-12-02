@@ -1,6 +1,6 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v4.0 (No Login)
+ * Version: v4.1 (Login Removed, Logic Maintained)
  */
 
 // ============================================================
@@ -11,8 +11,8 @@ const jsonFiles = [
     "OR 10-20BB UTG.json", "OR 10-20BB UTG1.json", "OR 10-20BB MP.json", "OR 10-20BB SB.json",
     "OR 20-40BB BTN.json", "OR 20-40BB CO.json", "OR 20-40BB HJ.json", "OR 20-40BB LJ.json",
     "OR 20-40BB UTG.json", "OR 20-40BB UTG1.json", "OR 20-40BB MP.json", "OR 20-40BB SB.json",
-    "OR 40BB+ BU.json", "OR 40BB+ CO.json", "OR 40BB+ HJ.json", "OR 40BB+ LJ.json",
-    "OR 40BB+ UTG.json", "OR 40BB+ UTG1.json", "OR 40BB+ MP.json",
+    "OR 40-100BB BU.json", "OR 40-100BB CO.json", "OR 40-100BB HJ.json", "OR 40-100BB LJ.json",
+    "OR 40-100BB UTG.json", "OR 40-100BB UTG1.json", "OR 40-100BB MP.json",
     "Pushing Ranges 10BB.json"
 ];
 
@@ -30,21 +30,32 @@ let handModal, closeModalBtn, handGrid, selectRandomHandBtn;
 let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
 let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
 
-// --- 색상 결정 헬퍼 함수 ---
+// --- 색상 결정 헬퍼 함수 (최신 버전 사용) ---
 function getStrategyClass(stratName) {
     const lower = stratName.toLowerCase();
     
     if (lower.includes('push')) return 'strat-push';
+    if (lower.includes('bluff') && lower.includes('oop')) return 'strat-indigo';
+    if (lower.includes('bluff') && lower.includes('ip')) return 'strat-teal';
     if (lower.includes('bluff')) return 'strat-purple';
 
+    if (lower.includes('4b value') && lower.includes('<40bb')) return 'strat-pink';
+    if (lower.includes('4b value') && lower.includes('<50bb')) return 'strat-crimson';
+    if (lower.includes('4b value') && !lower.includes('<')) return 'strat-brown';
     if (lower.includes('raise') && lower.includes('fold')) return 'strat-brown';
-    if (lower.includes('raise') && lower.includes('call')) return 'strat-orange';
-    if (lower.includes('limp') && lower.includes('fold')) return 'strat-cyan';
-    if (lower.includes('limp') && lower.includes('call')) return 'strat-cyan';
+    
+    if ((lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) && lower.includes('call')) return 'strat-grey';
+    
+    if (lower.includes('call') && lower.includes('50bb')) return 'strat-lime';
+    if (lower.includes('call') && lower.includes('40bb')) return 'strat-cyan';
+    if (lower.includes('call') && lower.includes('ip')) return 'strat-orange';
+    if (lower.includes('call')) return 'strat-yellow';
 
     if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) return 'strat-red';
+    
+    if (lower.includes('limp') && lower.includes('fold')) return 'strat-cyan';
+    if (lower.includes('limp') && lower.includes('call')) return 'strat-lime';
     if (lower.includes('limp')) return 'strat-green';
-    if (lower.includes('call')) return 'strat-call';
 
     if (lower.includes('fold')) return 'strat-fold';
 
@@ -65,7 +76,8 @@ function renderLegend(data) {
         const keys = Object.keys(data);
         keys.forEach(key => {
             const cls = getStrategyClass(key);
-            if (cls && cls !== 'strat-fold') {
+            // [수정] Fold 포함, 모든 전략 표시
+            if (cls) {
                 const div = document.createElement('div');
                 div.className = 'legend-item';
                 div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
@@ -106,7 +118,7 @@ function renderHandGrid(mode = 'select', data = null) {
                 
                 if (currentTab === 'PoF') {
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        className += ' strat-push';
+                        className += ' strat-push-only';
                         stratFound = true;
                     }
                 } 
@@ -114,7 +126,7 @@ function renderHandGrid(mode = 'select', data = null) {
                     for (const [stratName, handList] of Object.entries(data)) {
                         if (handList.includes(hand)) {
                             const cls = getStrategyClass(stratName);
-                            if (cls && cls !== 'strat-fold') {
+                            if (cls) {
                                 className += ' ' + cls;
                                 stratFound = true;
                             }
@@ -139,7 +151,7 @@ function renderHandGrid(mode = 'select', data = null) {
 
 // --- 메인 실행 ---
 window.addEventListener('DOMContentLoaded', async () => {
-    // 로그인 체크 로직 제거됨
+    // [제거됨] await checkLoginStatus(); (바로 앱 로드)
 
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
