@@ -1,6 +1,6 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v4.3 (Final Login Removal & Index Color Fix)
+ * Version: v4.3 (Final Login Logic Removed)
  */
 
 // ============================================================
@@ -30,13 +30,14 @@ let handModal, closeModalBtn, handGrid, selectRandomHandBtn;
 let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
 let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
 
-// --- 색상 결정 (여기는 텍스트 색상용으로만 사용) ---
+// --- 색상 결정 헬퍼 함수 (순서 기반 클래스 할당) ---
 function getStrategyClass(stratName) {
+    // 이 함수는 텍스트 정답의 색상을 결정하는 용도로만 사용됨
     const lower = stratName.toLowerCase();
-    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam') || lower.includes('push')) return 'strat-red'; 
-    if (lower.includes('call')) return 'strat-yellow'; 
-    if (lower.includes('fold')) return 'strat-fold'; 
-    return 'strat-green';
+    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam') || lower.includes('push')) return '#e53935'; 
+    if (lower.includes('call')) return '#fdd835'; 
+    if (lower.includes('fold')) return '#1e88e5'; 
+    return '#4caf50';
 }
 
 // --- 범례 생성 함수 (순서 기반) ---
@@ -53,7 +54,8 @@ function renderLegend(data) {
     if (data) {
         const keys = Object.keys(data);
         keys.forEach((key, index) => {
-            const cls = `strat-${index % 16}`; // 순서대로 색상 클래스 부여
+            // CSS 파일에 정의된 strat-0 ~ strat-15 클래스 사용
+            const cls = `strat-${index % 16}`; 
             const div = document.createElement('div');
             div.className = 'legend-item';
             div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
@@ -79,7 +81,6 @@ function renderHandGrid(mode = 'select', data = null) {
         }
     }
     
-    // OR 모드일 때만 전략 키 순서 가져오기
     let strategyKeys = [];
     if (mode === 'view' && data && currentTab !== 'PoF') {
         strategyKeys = Object.keys(data);
@@ -100,7 +101,7 @@ function renderHandGrid(mode = 'select', data = null) {
                 
                 if (currentTab === 'PoF') {
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        className += ' strat-push-only'; // PoF는 고정 클래스
+                        className += ' strat-push-only'; // PoF 전용 클래스
                         stratFound = true;
                     }
                 } 
@@ -135,7 +136,7 @@ function renderHandGrid(mode = 'select', data = null) {
 
 // --- 메인 실행 ---
 window.addEventListener('DOMContentLoaded', async () => {
-    // [제거됨] await checkLoginStatus();
+    // 로그인 로직 제거
 
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
