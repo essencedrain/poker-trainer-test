@@ -1,6 +1,6 @@
 /**
  * Project: 9T's Holdem Tool Script
- * Version: v4.1 (Login Removed, Logic Maintained)
+ * Version: v4.3 (Final Login Removal & Index Color Fix)
  */
 
 // ============================================================
@@ -30,38 +30,16 @@ let handModal, closeModalBtn, handGrid, selectRandomHandBtn;
 let strategyName, handText, displayStack, displayPos, loadingArea, answerBox;
 let tabOR, tabPoF, stackControlGroup, legendContainer, modalTitle;
 
-// --- 색상 결정 헬퍼 함수 (최신 버전 사용) ---
+// --- 색상 결정 (여기는 텍스트 색상용으로만 사용) ---
 function getStrategyClass(stratName) {
     const lower = stratName.toLowerCase();
-    
-    if (lower.includes('push')) return 'strat-push';
-    if (lower.includes('bluff') && lower.includes('oop')) return 'strat-indigo';
-    if (lower.includes('bluff') && lower.includes('ip')) return 'strat-teal';
-    if (lower.includes('bluff')) return 'strat-purple';
-
-    if (lower.includes('4b value') && lower.includes('<40bb')) return 'strat-pink';
-    if (lower.includes('4b value') && lower.includes('<50bb')) return 'strat-crimson';
-    if (lower.includes('4b value') && !lower.includes('<')) return 'strat-brown';
-    if (lower.includes('raise') && lower.includes('fold')) return 'strat-brown';
-    
-    if ((lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) && lower.includes('call')) return 'strat-grey';
-    
-    if (lower.includes('call') && lower.includes('50bb')) return 'strat-lime';
-    if (lower.includes('call') && lower.includes('40bb')) return 'strat-cyan';
-    if (lower.includes('call') && lower.includes('ip')) return 'strat-orange';
-    if (lower.includes('call')) return 'strat-yellow';
-
-    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam')) return 'strat-red';
-    
-    if (lower.includes('limp') && lower.includes('fold')) return 'strat-cyan';
-    if (lower.includes('limp') && lower.includes('call')) return 'strat-lime';
-    if (lower.includes('limp')) return 'strat-green';
-
-    if (lower.includes('fold')) return 'strat-fold';
-
-    return 'strat-other';
+    if (lower.includes('raise') || lower.includes('4b') || lower.includes('jam') || lower.includes('push')) return 'strat-red'; 
+    if (lower.includes('call')) return 'strat-yellow'; 
+    if (lower.includes('fold')) return 'strat-fold'; 
+    return 'strat-green';
 }
 
+// --- 범례 생성 함수 (순서 기반) ---
 function renderLegend(data) {
     if (!legendContainer) return;
     legendContainer.innerHTML = '';
@@ -74,19 +52,17 @@ function renderLegend(data) {
     
     if (data) {
         const keys = Object.keys(data);
-        keys.forEach(key => {
-            const cls = getStrategyClass(key);
-            // [수정] Fold 포함, 모든 전략 표시
-            if (cls) {
-                const div = document.createElement('div');
-                div.className = 'legend-item';
-                div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
-                legendContainer.appendChild(div);
-            }
+        keys.forEach((key, index) => {
+            const cls = `strat-${index % 16}`; // 순서대로 색상 클래스 부여
+            const div = document.createElement('div');
+            div.className = 'legend-item';
+            div.innerHTML = `<span class="legend-color ${cls}"></span>${key}`;
+            legendContainer.appendChild(div);
         });
     }
 }
 
+// --- 핸드 그리드 렌더링 (순서 기반) ---
 function renderHandGrid(mode = 'select', data = null) {
     if (!handGrid) return;
     handGrid.innerHTML = '';
@@ -101,6 +77,12 @@ function renderHandGrid(mode = 'select', data = null) {
                 allHands.push(hand);
             }
         }
+    }
+    
+    // OR 모드일 때만 전략 키 순서 가져오기
+    let strategyKeys = [];
+    if (mode === 'view' && data && currentTab !== 'PoF') {
+        strategyKeys = Object.keys(data);
     }
     
     let handIndex = 0;
@@ -118,22 +100,24 @@ function renderHandGrid(mode = 'select', data = null) {
                 
                 if (currentTab === 'PoF') {
                     if (data["Push"] && data["Push"].includes(hand)) {
-                        className += ' strat-push-only';
+                        className += ' strat-push-only'; // PoF는 고정 클래스
                         stratFound = true;
                     }
                 } 
                 else {
-                    for (const [stratName, handList] of Object.entries(data)) {
+                    for (let k = 0; k < strategyKeys.length; k++) {
+                        const key = strategyKeys[k];
+                        const handList = data[key];
+                        
                         if (handList.includes(hand)) {
-                            const cls = getStrategyClass(stratName);
-                            if (cls) {
-                                className += ' ' + cls;
-                                stratFound = true;
-                            }
+                            // [핵심] 순서 기반 색상 적용
+                            className += ` strat-${k % 16}`;
+                            stratFound = true;
                             break;
                         }
                     }
                 }
+                // 전략에 없는 핸드는 색칠하지 않음
             }
 
             const cell = document.createElement('div');
@@ -151,7 +135,7 @@ function renderHandGrid(mode = 'select', data = null) {
 
 // --- 메인 실행 ---
 window.addEventListener('DOMContentLoaded', async () => {
-    // [제거됨] await checkLoginStatus(); (바로 앱 로드)
+    // [제거됨] await checkLoginStatus();
 
     stackSelect = document.getElementById('stackSelect');
     posSelect = document.getElementById('posSelect');
